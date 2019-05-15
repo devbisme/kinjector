@@ -18,6 +18,8 @@ Inject/eject JSON data to/from KiCad files.
 * Free software: MIT license
 * Documentation: https://xesscorp.github.io/kinjector.docs/_site/index.html .
 
+**Don't use this. It's under development and currently useless for production.**
+
 
 Features
 --------
