@@ -1,0 +1,9 @@
+{
+    "netclass assignments": {
+        "": "Default", 
+        "Net-(D1-Pad1)": "Default", 
+        "Net-(R1-Pad2)": "new_new_class", 
+        "Net-(R2-Pad1)": "Default", 
+        "Net-(D1-Pad2)": "new_new_class"
+    }
+}

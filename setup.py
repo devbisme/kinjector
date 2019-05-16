@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 
 author = 'XESS Corp.'
 email = 'info@xess.com'
-version = '0.0.1'
+version = '0.0.2'
 
 if 'sdist' in sys.argv[1:]:
     with open('kinjector/pckg_info.py','w') as f:

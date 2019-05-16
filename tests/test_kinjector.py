@@ -3,23 +3,28 @@
 
 """Tests for `kinjector` package."""
 
+import json
 import pytest
-
-
+from pcbnew import LoadBoard
 from kinjector import kinjector
 
+@pytest.mark.parametrize("brd_file, json_file, inject, eject",
+        [
+            ("test.kicad_pcb", "test.json", kinjector.NetClassDefs.inject, kinjector.NetClassDefs.eject),
+            ("test.kicad_pcb", "test.json", kinjector.NetClassAssigns.inject, kinjector.NetClassAssigns.eject),
+        ]
+    )
+def test_inject_eject(brd_file, json_file, inject, eject):
 
-@pytest.fixture
-def response():
-    """Sample pytest fixture.
+    # Extract info from the board and store it in JSON file.
+    brd = LoadBoard(brd_file)
+    json_dict = eject(brd)
+    with open(json_file, 'w') as json_fp:
+        json.dump(json_dict, json_fp, indent=4)
 
-    See more at: http://doc.pytest.org/en/latest/fixture.html
-    """
-    # import requests
-    # return requests.get('https://github.com/audreyr/cookiecutter-pypackage')
-
-
-def test_content(response):
-    """Sample pytest test function with the pytest fixture as an argument."""
-    # from bs4 import BeautifulSoup
-    # assert 'GitHub' in BeautifulSoup(response.content).title.string
+    # Inject JSON file info back into board.
+    brd = LoadBoard(brd_file)
+    with open(json_file, 'r') as json_fp:
+        json_dict = json.load(json_fp)
+    inject(json_dict, brd)
+    brd.Save(brd.GetFileName())
