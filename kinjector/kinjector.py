@@ -24,7 +24,7 @@ import copy
 import json
 from collections import namedtuple
 
-from pcbnew import NETCLASSPTR as NCP
+from pcbnew import NETCLASSPTR as NCP, F_Cu, B_Cu, wxPoint
 
 
 class KinJector(object):
@@ -129,3 +129,72 @@ class NetClassAssigns(object):
                                     in brd.GetNetInfo().NetsByName().items()}
 
         return {'netclass assignments': netclass_assignment_dict}
+
+
+class PartPosition(object):
+    """Inject/eject part (X,Y), rotation, front/back to/from a KiCad MODULE object."""
+
+    # Index top and bottom of boards by their layer number in PCBNEW.
+    top_btm = {F_Cu: 'top', B_Cu: 'bottom'}
+
+    @staticmethod
+    def inject(json_dict, module):
+        """Inject part position from JSON into a KiCad MODULE object."""
+
+        # Set the (X,Y) position.
+        module.SetPosition(wxPoint(json_dict['x'], json_dict['y']))
+
+        # Set the orientation (in degrees).
+        module.SetOrientationDegrees(json_dict['angle'])
+        
+        # Set whether the board is on the top or bottom side of the PCB.
+        module_side = PartPosition.top_btm[module.GetLayer()]
+        if module_side != json_dict['side'].lower():
+            module.Flip(module.GetPosition())
+
+    @staticmethod
+    def eject(module):
+        """Return JSON part position from a KiCad MODULE object."""
+
+        pos = module.GetPosition()
+        return { 'x': pos.x, 'y': pos.y,
+                 'angle': module.GetOrientationDegrees(),
+                 'side': PartPosition.top_btm[module.GetLayer()],
+               }
+
+
+class PartPositions(object):
+    """Inject/eject part (X,Y), rotation, front/back to/from a KiCad BOARD object."""
+
+    @staticmethod
+    def inject(json_dict, brd):
+        """Inject part positions from JSON into a KiCad BOARD object."""
+
+        # Get the position for each part from the JSON.
+        json_part_positions = json_dict.get('part positions', {})
+
+        # Get all the parts in the board indexed by references.
+        brd_parts = {m.GetReference():m for m in brd.GetModules()}
+
+        # Assign the positions in the JSON to the parts on the board.
+        for json_part_ref, json_part_position in json_part_positions.items():
+            # Check to see if the part from the JSON file exists on the board.
+            try:
+                brd_part = brd_parts[json_part_ref]
+            except IndexError:
+                continue # Should we signal an error for a missing part?
+
+            PartPosition.inject(json_part_position, brd_part)
+
+    @staticmethod
+    def eject(brd):
+        """Return JSON part positions from a KiCad BOARD object."""
+
+        # Get all the parts in the board indexed by references.
+        brd_parts = {m.GetReference():m for m in brd.GetModules()}
+
+        # Extract the position of each part on the board.
+        part_position_dict = {part_ref:PartPosition.eject(part) for (part_ref, part)
+                                    in brd_parts.items()}
+
+        return {'part positions': part_position_dict}

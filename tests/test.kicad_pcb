@@ -109,17 +109,6 @@
     (add_net "Net-(R2-Pad1)")
   )
 
-  (net_class Default ""
-    (clearance 0.2)
-    (trace_width 0.25)
-    (via_dia 0.8)
-    (via_drill 0.4)
-    (uvia_dia 0.3)
-    (uvia_drill 0.1)
-    (add_net "Net-(D1-Pad1)")
-    (add_net "Net-(R2-Pad1)")
-  )
-
   (net_class new_new_class ""
     (clearance 0.2)
     (trace_width 0.25)
