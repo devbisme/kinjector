@@ -1,7 +1,7 @@
 (kicad_pcb (version 20171130) (host pcbnew "(5.1.2)-1")
 
   (general
-    (thickness 1.6)
+    (thickness 0.16)
     (drawings 0)
     (tracks 0)
     (zones 0)
@@ -12,6 +12,10 @@
   (page A4)
   (layers
     (0 F.Cu signal)
+    (1 In1.Cu signal hide)
+    (2 In2.Cu signal hide)
+    (3 In3.Cu signal hide)
+    (4 In4.Cu signal hide)
     (31 B.Cu signal)
     (32 B.Adhes user)
     (33 F.Adhes user)
@@ -43,7 +47,7 @@
     (trace_min 0.2)
     (via_size 0.8)
     (via_drill 0.4)
-    (via_min_size 0.2)
+    (via_min_size 0.4)
     (via_min_drill 0.3)
     (uvia_size 0.3)
     (uvia_drill 0.1)

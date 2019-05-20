@@ -48,10 +48,9 @@ class NetClassDefs(KinJector):
         'via drill':       KinJector.GetSet(NCP.GetViaDrill,      NCP.SetViaDrill),
         'uvia diameter':   KinJector.GetSet(NCP.GetuViaDiameter,  NCP.SetuViaDiameter),
         'uvia drill':      KinJector.GetSet(NCP.GetuViaDrill,     NCP.SetuViaDrill),
-        }
+    }
 
-    @staticmethod
-    def inject(json_dict, brd):
+    def inject(self, json_dict, brd):
         """Inject net class definitions from JSON into a KiCad BOARD object."""
 
         # Get all net class definitions from the JSON.
@@ -73,10 +72,9 @@ class NetClassDefs(KinJector):
 
             # Update the board's net class parameters with the values from the JSON.
             for key, value in json_netclass_params.items():
-                NetClassDefs.key_method_map[key.lower()].set(brd_netclass_params,value)
+                self.key_method_map[key.lower()].set(brd_netclass_params,value)
 
-    @staticmethod
-    def eject(brd):
+    def eject(self, brd):
         """Return JSON net class definitions from a KiCad BOARD object."""
 
         # Extract the parameters for each net class in the board.
@@ -84,7 +82,7 @@ class NetClassDefs(KinJector):
         for netclass_name, netclass_parameters in brd.GetAllNetClasses().items():
             netclass_dict[str(netclass_name)] = {
                 key: method.get(netclass_parameters)
-                    for (key, method) in NetClassDefs.key_method_map.items() }
+                    for (key, method) in self.key_method_map.items() }
 
         return {'netclasses': netclass_dict}
 
@@ -92,8 +90,7 @@ class NetClassDefs(KinJector):
 class NetClassAssigns(KinJector):
     """Inject/eject net class assignments to/from a KiCad BOARD object."""
 
-    @staticmethod
-    def inject(json_dict, brd):
+    def inject(self, json_dict, brd):
         """Inject net class assignments from JSON into a KiCad BOARD object."""
 
         # Get the netclass assignment for each net from the JSON.
@@ -120,8 +117,7 @@ class NetClassAssigns(KinJector):
             new_net_class.NetNames().add(json_net_name)
             brd_net.SetClass(new_net_class)
 
-    @staticmethod
-    def eject(brd):
+    def eject(self, brd):
         """Return JSON net class assignments from a KiCad BOARD object."""
 
         # Extract the netclass assigned to each net in the board.
@@ -134,22 +130,23 @@ class NetClassAssigns(KinJector):
 class PartsByRef(KinJector):
     """Inject/eject data to/from parts in a KiCad BOARD object by part reference."""
 
-    part_class = object
-    json_key = ''
+    def __init__(self):
+        super(PartsByRef,self).__init__()
+        part_class = None
+        json_key = None
 
     @staticmethod
     def get_id(module):
         return module.GetReference()
 
-    @staticmethod
-    def inject(json_dict, brd):
+    def inject(self, json_dict, brd):
         """Inject data from JSON into parts of a KiCad BOARD object."""
 
         # Get all the parts in the board indexed by references.
-        brd_parts = {PartsByRef.get_id(m):m for m in brd.GetModules()}
+        brd_parts = {self.get_id(m):m for m in brd.GetModules()}
 
         # Assign the data in the JSON to the parts on the board.
-        for json_part_ref, json_part_data in json_dict[PartsByRef.json_key].items():
+        for json_part_ref, json_part_data in json_dict[self.json_key].items():
 
             # Check to see if the part from the JSON file exists on the board.
             try:
@@ -157,20 +154,19 @@ class PartsByRef(KinJector):
             except IndexError:
                 continue # Should we signal an error for a missing part?
 
-            PartsByRef.part_class.inject(json_part_data, brd_part)
+            self.part_class.inject(json_part_data, brd_part)
 
-    @staticmethod
-    def eject(brd):
+    def eject(self, brd):
         """Return JSON part data from parts in a KiCad BOARD object."""
 
         # Get all the parts in the board indexed by references.
-        brd_parts = {PartsByRef.get_id(m):m for m in brd.GetModules()}
+        brd_parts = {self.get_id(m):m for m in brd.GetModules()}
 
         # Extract the data from each part on the board.
-        part_data_dict = {part_ref:PartsByRef.part_class.eject(part) for (part_ref, part)
+        part_data_dict = {part_ref:self.part_class.eject(part) for (part_ref, part)
                                     in brd_parts.items()}
 
-        return {PartsByRef.json_key: part_data_dict}
+        return {self.json_key: part_data_dict}
 
 
 class PartPosition(KinJector):
@@ -179,8 +175,7 @@ class PartPosition(KinJector):
     # Index top and bottom of boards by their layer number in PCBNEW.
     top_btm = {F_Cu: 'top', B_Cu: 'bottom'}
 
-    @staticmethod
-    def inject(json_dict, module):
+    def inject(self, json_dict, module):
         """Inject part position from JSON into a KiCad MODULE object."""
 
         # Set the (X,Y) position.
@@ -196,26 +191,118 @@ class PartPosition(KinJector):
             pass # No angle data, so skip it.
         
         # Set whether the board is on the top or bottom side of the PCB.
-        module_side = PartPosition.top_btm[module.GetLayer()]
+        module_side = self.top_btm[module.GetLayer()]
         try:
             if module_side != json_dict['side'].lower():
                 module.Flip(module.GetPosition())
         except IndexError:
             pass # No top-side/bottom-side data, so skip it.
 
-    @staticmethod
-    def eject(module):
+    def eject(self, module):
         """Return JSON part position from a KiCad MODULE object."""
 
         pos = module.GetPosition()
-        return { 'x': pos.x, 'y': pos.y,
-                 'angle': module.GetOrientationDegrees(),
-                 'side': PartPosition.top_btm[module.GetLayer()],
-               }
+        return { 
+            'x': pos.x, 'y': pos.y,
+            'angle': module.GetOrientationDegrees(),
+            'side': self.top_btm[module.GetLayer()],
+        }
 
 
 class PartPositions(PartsByRef):
     """Inject/eject part (X,Y), rotation, front/back to/from a KiCad BOARD object."""
 
-    PartsByRef.part_class = PartPosition
+    PartsByRef.part_class = PartPosition()
     PartsByRef.json_key = 'part positions'
+
+class DesignRules(KinJector):
+    """Inject/eject board design rules to/from a KiCad BOARD object."""
+
+    def inject(self, json_dict, brd):
+        """Inject design rule settings from JSON into a KiCad BOARD object."""
+
+        # Get the design rule settings from the JSON.
+        json_drs = json_dict.get('design rules', {})
+
+        # Get the design rules from the board.
+        brd_drs = brd.GetDesignSettings();
+
+        try:
+            brd_drs.SetBoardThickness(json_drs['board thickness'])
+        except KeyError:
+            pass
+
+        try:
+            brd_drs.SetCopperLayerCount(json_drs['# copper layers'])
+        except KeyError:
+            pass
+
+        try:
+            brd_drs.m_HoleToHoleMin = json_drs['hole to hole spacing']
+        except KeyError:
+            pass
+
+        try:
+            brd_drs.m_ProhibitOverlappingCourtyards = json_drs['prohibit courtyard overlap']
+        except KeyError:
+            pass
+
+        try:
+            brd_drs.m_RequireCourtyards = json_drs['require courtyards']
+        except KeyError:
+            pass
+
+        try:
+            brd_drs.m_MicroViasAllowed = json_drs['uvia allowed']
+        except KeyError:
+            pass
+
+        try:
+            brd_drs.m_MicroViasMinDrill = json_drs['uvia min drill size']
+        except KeyError:
+            pass
+
+        try:
+            brd_drs.m_MicroViasMinSize = json_drs['uvia min diameter']
+        except KeyError:
+            pass
+
+        try:
+            brd_drs.m_ViasMinDrill = json_drs['via min drill size']
+        except KeyError:
+            pass
+
+        try:
+            brd_drs.m_ViasMinSize = json_drs['via min diameter']
+        except KeyError:
+            pass
+
+        try:
+            brd_drs.m_TrackMinWidth = json_drs['track min width']
+        except KeyError:
+            pass
+
+        # Load the updated design rules back into the board.
+        brd.SetDesignSettings(brd_drs)
+
+    def eject(self, brd):
+        """Return JSON design rule settings from a KiCad BOARD object."""
+
+        # Get the design rules from the board.
+        brd_drs = brd.GetDesignSettings();
+
+        return {
+            'design rules': {
+                'board thickness': brd_drs.GetBoardThickness(),
+                '# copper layers': brd_drs.GetCopperLayerCount(),
+                'hole to hole spacing': brd_drs.m_HoleToHoleMin,
+                'prohibit courtyard overlap': brd_drs.m_ProhibitOverlappingCourtyards,
+                'require courtyards': brd_drs.m_RequireCourtyards,
+                'uvia allowed': brd_drs.m_MicroViasAllowed,
+                'uvia min drill size': brd_drs.m_MicroViasMinDrill,
+                'uvia min diameter': brd_drs.m_MicroViasMinSize,
+                'via min drill size': brd_drs.m_ViasMinDrill,
+                'via min diameter': brd_drs.m_ViasMinSize,
+                'track min width': brd_drs.m_TrackMinWidth,
+            }
+        }

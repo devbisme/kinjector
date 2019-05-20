@@ -1,28 +1,15 @@
 {
-    "part positions": {
-        "R3": {
-            "y": 102137000, 
-            "x": 166187000, 
-            "angle": 0.0, 
-            "side": "top"
-        }, 
-        "R1": {
-            "y": 102137000, 
-            "x": 161417000, 
-            "angle": 0.0, 
-            "side": "top"
-        }, 
-        "R2": {
-            "y": 99187000, 
-            "x": 166187000, 
-            "angle": 0.0, 
-            "side": "top"
-        }, 
-        "D1": {
-            "y": 99187000, 
-            "x": 161417000, 
-            "angle": 0.0, 
-            "side": "top"
-        }
+    "design rules": {
+        "track min width": 200000, 
+        "hole to hole spacing": 0, 
+        "board thickness": 1600000, 
+        "uvia allowed": false, 
+        "uvia min drill size": 100000, 
+        "via min drill size": 300000, 
+        "# copper layers": 2, 
+        "uvia min diameter": 200000, 
+        "prohibit courtyard overlap": false, 
+        "require courtyards": false, 
+        "via min diameter": 200000
     }
 }
