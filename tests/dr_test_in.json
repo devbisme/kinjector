@@ -1,0 +1,35 @@
+{
+    "design rules": {
+        "solder paste margin ratio": 0.1, 
+        "track width list": [
+            250001, 
+            650001, 
+            1000001
+        ], 
+        "uvia min drill size": 456781, 
+        "solder mask margin": 51001, 
+        "via dimensions list": [
+            {
+                "diameter": 800001, 
+                "drill": 400001
+            },
+            {
+                "diameter": 400001, 
+                "drill": 200001
+            }
+        ], 
+        "solder paste margin": 10, 
+        "via min drill size": 567891, 
+        "track min width": 123451, 
+        "# copper layers": 4, 
+        "uvia min diameter": 678901, 
+        "hole to hole spacing": 1, 
+        "via min diameter": 789011, 
+        "prohibit courtyard overlap": true, 
+        "board thickness": 456781, 
+        "uvia allowed": false, 
+        "solder mask min width": 250001, 
+        "require courtyards": true, 
+        "blind/buried via allowed": false
+    }
+}

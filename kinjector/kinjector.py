@@ -24,7 +24,9 @@ import copy
 import json
 from collections import namedtuple
 
-from pcbnew import NETCLASSPTR as NCP, F_Cu, B_Cu, wxPoint
+from pcbnew import (NETCLASSPTR as NCP, F_Cu, B_Cu, wxPoint, intVector,
+    VIA_DIMENSION, VIA_DIMENSION_Vector,
+    DIFF_PAIR_DIMENSION, DIFF_PAIR_DIMENSION_swigregister)
 
 
 class KinJector(object):
@@ -238,8 +240,10 @@ class DesignRules(KinJector):
             pass
 
         try:
-            brd_drs.m_HoleToHoleMin = json_drs['hole to hole spacing']
+            #brd_drs.m_HoleToHoleMin = json_drs['hole to hole spacing']
+            brd_drs.SetMinHoleSeparation(json_drs['hole to hole spacing'])
         except KeyError:
+            print 'ERROR'
             pass
 
         try:
@@ -251,6 +255,18 @@ class DesignRules(KinJector):
             brd_drs.m_RequireCourtyards = json_drs['require courtyards']
         except KeyError:
             pass
+
+        try:
+            brd_drs.m_BlindBuriedViaAllowed = json_drs['blind/buried via allowed']
+        except KeyError:
+            pass
+
+        # try:
+            # brd_drs.m_DiffPairDimensionsList = DIFF_PAIR_DIMENSION_Vector(
+               # [DIFF_PAIR_DIMENSION(dp['width'],dp['gap'],dp['via gap'])
+               # for dp in json_drs['diff pair dimensions list']])
+        # except KeyError:
+            # pass
 
         try:
             brd_drs.m_MicroViasAllowed = json_drs['uvia allowed']
@@ -278,7 +294,39 @@ class DesignRules(KinJector):
             pass
 
         try:
+            brd_drs.m_ViasDimensionsList = VIA_DIMENSION_Vector(
+               [VIA_DIMENSION(v['diameter'],v['drill'])
+               for v in json_drs['via dimensions list']])
+        except KeyError:
+            pass
+
+        try:
             brd_drs.m_TrackMinWidth = json_drs['track min width']
+        except KeyError:
+            pass
+
+        try:
+            brd_drs.m_TrackWidthList = intVector(json_drs['track width list'])
+        except KeyError:
+            pass
+
+        try:
+            brd_drs.m_SolderMaskMargin = json_drs['solder mask margin']
+        except KeyError:
+            pass
+
+        try:
+            brd_drs.m_SolderMaskMinWidth = json_drs['solder mask min width']
+        except KeyError:
+            pass
+
+        try:
+            brd_drs.m_SolderPasteMargin = json_drs['solder paste margin']
+        except KeyError:
+            pass
+
+        try:
+            brd_drs.m_SolderPasteMarginRatio = json_drs['solder paste margin ratio']
         except KeyError:
             pass
 
@@ -298,11 +346,21 @@ class DesignRules(KinJector):
                 'hole to hole spacing': brd_drs.m_HoleToHoleMin,
                 'prohibit courtyard overlap': brd_drs.m_ProhibitOverlappingCourtyards,
                 'require courtyards': brd_drs.m_RequireCourtyards,
+                'blind/buried via allowed': brd_drs.m_BlindBuriedViaAllowed,
+                # 'diff pair dimensions list': [{'width': dp.m_Width, 'gap': dp.m_Gap, 'via gap': dp.m_ViaGap}
+                                           # for dp in brd_drs.m_DiffPairDimensionsList],
                 'uvia allowed': brd_drs.m_MicroViasAllowed,
                 'uvia min drill size': brd_drs.m_MicroViasMinDrill,
                 'uvia min diameter': brd_drs.m_MicroViasMinSize,
                 'via min drill size': brd_drs.m_ViasMinDrill,
                 'via min diameter': brd_drs.m_ViasMinSize,
+                'via dimensions list': [{'diameter': v.m_Diameter, 'drill': v.m_Drill}
+                                           for v in brd_drs.m_ViasDimensionsList],
                 'track min width': brd_drs.m_TrackMinWidth,
+                'track width list': [w for w in brd_drs.m_TrackWidthList],
+                'solder mask margin': brd_drs.m_SolderMaskMargin,
+                'solder mask min width': brd_drs.m_SolderMaskMinWidth,
+                'solder paste margin': brd_drs.m_SolderPasteMargin,
+                'solder paste margin ratio': brd_drs.m_SolderPasteMarginRatio,
             }
         }

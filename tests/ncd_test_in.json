@@ -1,0 +1,26 @@
+{
+    "netclasses": {
+        "Default": {
+            "description": "default net class def", 
+            "diff pair width": 200001, 
+            "via drill": 400001, 
+            "track width": 250001, 
+            "uvia drill": 100001, 
+            "diff pair gap": 250001, 
+            "clearance": 200001, 
+            "uvia diameter": 300001, 
+            "via diameter": 800001
+        }, 
+        "new_new_class": {
+            "description": "new net class def", 
+            "diff pair width": 200002, 
+            "via drill": 400002, 
+            "track width": 250002, 
+            "uvia drill": 100002, 
+            "diff pair gap": 250002, 
+            "clearance": 200002, 
+            "uvia diameter": 300002, 
+            "via diameter": 800002
+        }
+    }
+}
