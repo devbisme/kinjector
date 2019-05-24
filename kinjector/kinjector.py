@@ -227,7 +227,9 @@ class TrackWidths(KinJector):
         brd_drs = brd.GetDesignSettings();
 
         try:
-            brd_drs.m_TrackWidthList = intVector(json_dict['track width list'])
+            # The first track width never seems to change, so just inject the
+            # list of track widths after that.
+            brd_drs.m_TrackWidthList = intVector([0,] + json_dict['track width list'])
         except KeyError:
             pass
 
@@ -252,7 +254,10 @@ class ViaDimensions(KinJector):
         brd_drs = brd.GetDesignSettings();
 
         try:
+            # The first via dimension never seems to change, so just inject the
+            # list of via dimensions after that.
             brd_drs.m_ViasDimensionsList = VIA_DIMENSION_Vector(
+               [VIA_DIMENSION(0,0)] +
                [VIA_DIMENSION(v['diameter'],v['drill'])
                for v in json_dict['via dimensions list']])
         except KeyError:
