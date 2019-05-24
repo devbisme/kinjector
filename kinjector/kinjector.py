@@ -217,6 +217,97 @@ class PartPositions(PartsByRef):
     PartsByRef.part_class = PartPosition()
     PartsByRef.json_key = 'part positions'
 
+class TrackWidths(KinJector):
+    """Inject/eject track widths to/from a KiCad board object."""
+
+    def inject(self, json_dict, brd):
+        """Inject track widths from JSON into a KiCad BOARD object."""
+
+        # Get the design rules from the board.
+        brd_drs = brd.GetDesignSettings();
+
+        try:
+            brd_drs.m_TrackWidthList = intVector(json_dict['track width list'])
+        except KeyError:
+            pass
+
+        # Load the updated track widths back into the board.
+        brd.SetDesignSettings(brd_drs)
+
+    def eject(self, brd):
+        """Return JSON track widths from a KiCad BOARD object."""
+
+        # Get the design rules from the board.
+        brd_drs = brd.GetDesignSettings();
+
+        return {'track width list': [w for w in brd_drs.m_TrackWidthList]}
+
+class ViaDimensions(KinJector):
+    """Inject/eject via dimensions to/from a KiCad board object."""
+
+    def inject(self, json_dict, brd):
+        """Inject via dimensions from JSON into a KiCad BOARD object."""
+
+        # Get the design rules from the board.
+        brd_drs = brd.GetDesignSettings();
+
+        try:
+            brd_drs.m_ViasDimensionsList = VIA_DIMENSION_Vector(
+               [VIA_DIMENSION(v['diameter'],v['drill'])
+               for v in json_dict['via dimensions list']])
+        except KeyError:
+            pass
+
+        # Load the updated via dimensions back into the board.
+        brd.SetDesignSettings(brd_drs)
+
+    def eject(self, brd):
+        """Return JSON via dimensions from a KiCad BOARD object."""
+
+        # Get the design rules from the board.
+        brd_drs = brd.GetDesignSettings();
+
+        return {'via dimensions list': 
+                    [{'diameter': v.m_Diameter, 'drill': v.m_Drill}
+                    for v in brd_drs.m_ViasDimensionsList]}
+
+class DiffPairDimensions(KinJector):
+    """Inject/eject differential pair dimensions to/from a KiCad board object."""
+
+    # THIS CODE DOESN'T WORK because there's no Python iterable for the list of
+    # differential pair dimensions, just a SwigPyObject.
+
+    def inject(self, json_dict, brd):
+        """Inject diff pair dimensions from JSON into a KiCad BOARD object."""
+
+        return  # DIFF_PAIR_DIMENSION_Vector is not defined.
+
+        # Get the design rules from the board.
+        brd_drs = brd.GetDesignSettings();
+
+        try:
+            brd_drs.m_DiffPairDimensionsList = DIFF_PAIR_DIMENSION_Vector(
+               [DIFF_PAIR_DIMENSION(dp['width'],dp['gap'],dp['via gap'])
+               for dp in json_dict['diff pair dimensions list']])
+        except KeyError:
+            pass
+
+        # Load the updated diff pair dimensions back into the board.
+        brd.SetDesignSettings(brd_drs)
+
+    def eject(self, brd):
+        """Return JSON diff pair dimensions from a KiCad BOARD object."""
+
+        # Can't iterate over a SwigPyObject. DIFF_PAIR_DIMENSION_Vector is not defined.
+        return {'diff pair dimensions list': []}
+
+        # Get the design rules from the board.
+        brd_drs = brd.GetDesignSettings();
+
+        return {'diff pair dimensions list':
+                [{'width': dp.m_Width, 'gap': dp.m_Gap, 'via gap': dp.m_ViaGap}
+                               for dp in brd_drs.m_DiffPairDimensionsList]}
+
 class DesignRules(KinJector):
     """Inject/eject board design rules to/from a KiCad BOARD object."""
 
@@ -243,7 +334,6 @@ class DesignRules(KinJector):
             #brd_drs.m_HoleToHoleMin = json_drs['hole to hole spacing']
             brd_drs.SetMinHoleSeparation(json_drs['hole to hole spacing'])
         except KeyError:
-            print 'ERROR'
             pass
 
         try:
@@ -260,13 +350,6 @@ class DesignRules(KinJector):
             brd_drs.m_BlindBuriedViaAllowed = json_drs['blind/buried via allowed']
         except KeyError:
             pass
-
-        # try:
-            # brd_drs.m_DiffPairDimensionsList = DIFF_PAIR_DIMENSION_Vector(
-               # [DIFF_PAIR_DIMENSION(dp['width'],dp['gap'],dp['via gap'])
-               # for dp in json_drs['diff pair dimensions list']])
-        # except KeyError:
-            # pass
 
         try:
             brd_drs.m_MicroViasAllowed = json_drs['uvia allowed']
@@ -294,19 +377,7 @@ class DesignRules(KinJector):
             pass
 
         try:
-            brd_drs.m_ViasDimensionsList = VIA_DIMENSION_Vector(
-               [VIA_DIMENSION(v['diameter'],v['drill'])
-               for v in json_drs['via dimensions list']])
-        except KeyError:
-            pass
-
-        try:
             brd_drs.m_TrackMinWidth = json_drs['track min width']
-        except KeyError:
-            pass
-
-        try:
-            brd_drs.m_TrackWidthList = intVector(json_drs['track width list'])
         except KeyError:
             pass
 
@@ -333,13 +404,22 @@ class DesignRules(KinJector):
         # Load the updated design rules back into the board.
         brd.SetDesignSettings(brd_drs)
 
+        # Load the track widths back into the board.
+        TrackWidths().inject(json_drs, brd)
+
+        # Load the updated via dimensions back into the board.
+        ViaDimensions().inject(json_drs, brd)
+
+        # Load the updated diff pair dimensions back into the board.
+        DiffPairDimensions().inject(json_drs, brd)
+
     def eject(self, brd):
         """Return JSON design rule settings from a KiCad BOARD object."""
 
         # Get the design rules from the board.
         brd_drs = brd.GetDesignSettings();
 
-        return {
+        json_drs = {
             'design rules': {
                 'board thickness': brd_drs.GetBoardThickness(),
                 '# copper layers': brd_drs.GetCopperLayerCount(),
@@ -347,20 +427,26 @@ class DesignRules(KinJector):
                 'prohibit courtyard overlap': brd_drs.m_ProhibitOverlappingCourtyards,
                 'require courtyards': brd_drs.m_RequireCourtyards,
                 'blind/buried via allowed': brd_drs.m_BlindBuriedViaAllowed,
-                # 'diff pair dimensions list': [{'width': dp.m_Width, 'gap': dp.m_Gap, 'via gap': dp.m_ViaGap}
-                                           # for dp in brd_drs.m_DiffPairDimensionsList],
                 'uvia allowed': brd_drs.m_MicroViasAllowed,
                 'uvia min drill size': brd_drs.m_MicroViasMinDrill,
                 'uvia min diameter': brd_drs.m_MicroViasMinSize,
                 'via min drill size': brd_drs.m_ViasMinDrill,
                 'via min diameter': brd_drs.m_ViasMinSize,
-                'via dimensions list': [{'diameter': v.m_Diameter, 'drill': v.m_Drill}
-                                           for v in brd_drs.m_ViasDimensionsList],
                 'track min width': brd_drs.m_TrackMinWidth,
-                'track width list': [w for w in brd_drs.m_TrackWidthList],
                 'solder mask margin': brd_drs.m_SolderMaskMargin,
                 'solder mask min width': brd_drs.m_SolderMaskMinWidth,
                 'solder paste margin': brd_drs.m_SolderPasteMargin,
                 'solder paste margin ratio': brd_drs.m_SolderPasteMarginRatio,
             }
         }
+
+        # Update JSON dict with the board track widths.
+        json_drs['design rules'].update(TrackWidths().eject(brd))
+
+        # Update JSON dict with the board via dimensions.
+        json_drs['design rules'].update(ViaDimensions().eject(brd))
+
+        # Update JSON dict with the board differential pair dimensions.
+        json_drs['design rules'].update(DiffPairDimensions().eject(brd))
+
+        return json_drs
