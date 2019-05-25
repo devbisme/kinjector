@@ -139,7 +139,7 @@ class PartsByRef(KinJector):
 
     @staticmethod
     def get_id(module):
-        return module.GetReference()
+        return str(module.GetReference())
 
     def inject(self, json_dict, brd):
         """Inject data from JSON into parts of a KiCad BOARD object."""
