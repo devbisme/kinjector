@@ -38,6 +38,8 @@ class KinJector(object):
 class NetClassDefs(KinJector):
     """Inject/eject net class definitions to/from a KiCad BOARD object."""
 
+    dict_key = 'netclasses'
+
     # Associate each net class parameter key with methods for getting/setting
     # it in the board's net class structure.
     key_method_map = {
@@ -65,7 +67,7 @@ class NetClassDefs(KinJector):
         """Inject net class definitions from data dict into a KiCad BOARD object."""
 
         # Get all net class definitions from the data dict.
-        data_netclass_defs = data_dict.get('netclasses', {})
+        data_netclass_defs = data_dict.get(self.dict_key, {})
 
         # Get all the net classes in the board.
         brd_netclasses = brd.GetAllNetClasses()
@@ -99,17 +101,19 @@ class NetClassDefs(KinJector):
                 for (key, method) in self.key_method_map.items()
             }
 
-        return {'netclasses': netclass_dict}
+        return {self.dict_key: netclass_dict}
 
 
 class NetClassAssigns(KinJector):
     """Inject/eject net class assignments to/from a KiCad BOARD object."""
 
+    dict_key = 'netclass assignments'
+
     def inject(self, data_dict, brd):
         """Inject net class assignments from data_dict into a KiCad BOARD object."""
 
         # Get the netclass assignment for each net from the data dict.
-        data_netclass_assignments = data_dict.get('netclass assignments', {})
+        data_netclass_assignments = data_dict.get(self.dict_key, {})
 
         # Get all the nets in the board indexed by net names.
         brd_nets = brd.GetNetInfo().NetsByName()
@@ -142,7 +146,7 @@ class NetClassAssigns(KinJector):
             for (net_name, net) in brd.GetNetInfo().NetsByName().items()
         }
 
-        return {'netclass assignments': netclass_assignment_dict}
+        return {self.dict_key: netclass_assignment_dict}
 
 
 class PartsByRef(KinJector):
@@ -151,7 +155,7 @@ class PartsByRef(KinJector):
     def __init__(self):
         super(PartsByRef, self).__init__()
         part_class = None
-        data_key = None
+        dict_key = None
 
     @staticmethod
     def get_id(module):
@@ -164,7 +168,7 @@ class PartsByRef(KinJector):
         brd_parts = {self.get_id(m): m for m in brd.GetModules()}
 
         # Assign the data in the data_dict to the parts on the board.
-        for data_part_ref, data_part_data in data_dict[self.data_key].items():
+        for data_part_ref, data_part_data in data_dict[self.dict_key].items():
 
             # Check to see if the part from the data dict exists on the board.
             try:
@@ -186,7 +190,7 @@ class PartsByRef(KinJector):
             for (part_ref, part) in brd_parts.items()
         }
 
-        return {self.data_key: part_data_dict}
+        return {self.dict_key: part_data_dict}
 
 
 class PartPosition(KinJector):
@@ -234,11 +238,13 @@ class PartPositions(PartsByRef):
     """Inject/eject part (X,Y), rotation, front/back to/from a KiCad BOARD object."""
 
     PartsByRef.part_class = PartPosition()
-    PartsByRef.data_key = 'part positions'
+    PartsByRef.dict_key = 'part positions'
 
 
 class TrackWidths(KinJector):
     """Inject/eject track widths to/from a KiCad board object."""
+
+    dict_key = 'track width list'
 
     def inject(self, data_dict, brd):
         """Inject track widths from JSON into a KiCad BOARD object."""
@@ -251,7 +257,7 @@ class TrackWidths(KinJector):
             # list of track widths after that.
             brd_drs.m_TrackWidthList = intVector([
                 0,
-            ] + data_dict['track width list'])
+            ] + data_dict[self.dict_key])
         except KeyError:
             pass
 
@@ -264,11 +270,13 @@ class TrackWidths(KinJector):
         # Get the design rules from the board.
         brd_drs = brd.GetDesignSettings()
 
-        return {'track width list': [w for w in brd_drs.m_TrackWidthList]}
+        return {self.dict_key: [w for w in brd_drs.m_TrackWidthList]}
 
 
 class ViaDimensions(KinJector):
     """Inject/eject via dimensions to/from a KiCad board object."""
+
+    dict_key = 'via dimensions list'
 
     def inject(self, data_dict, brd):
         """Inject via dimensions from data dict into a KiCad BOARD object."""
@@ -282,7 +290,7 @@ class ViaDimensions(KinJector):
             brd_drs.m_ViasDimensionsList = VIA_DIMENSION_Vector(
                 [VIA_DIMENSION(0, 0)] + [
                     VIA_DIMENSION(v['diameter'], v['drill'])
-                    for v in data_dict['via dimensions list']
+                    for v in data_dict[self.dict_key]
                 ])
         except KeyError:
             pass
@@ -297,7 +305,7 @@ class ViaDimensions(KinJector):
         brd_drs = brd.GetDesignSettings()
 
         return {
-            'via dimensions list': [{
+            self.dict_key: [{
                 'diameter': v.m_Diameter,
                 'drill': v.m_Drill
             } for v in brd_drs.m_ViasDimensionsList]
@@ -310,6 +318,8 @@ class DiffPairDimensions(KinJector):
     # THIS CODE DOESN'T WORK because there's no Python iterable for the list of
     # differential pair dimensions, just a SwigPyObject.
 
+    dict_key = 'diff pair dimensions list'
+
     def inject(self, data_dict, brd):
         """Inject diff pair dimensions from data_dict into a KiCad BOARD object."""
 
@@ -321,7 +331,7 @@ class DiffPairDimensions(KinJector):
         try:
             brd_drs.m_DiffPairDimensionsList = DIFF_PAIR_DIMENSION_Vector([
                 DIFF_PAIR_DIMENSION(dp['width'], dp['gap'], dp['via gap'])
-                for dp in data_dict['diff pair dimensions list']
+                for dp in data_dict[self.dict_key]
             ])
         except KeyError:
             pass
@@ -333,13 +343,13 @@ class DiffPairDimensions(KinJector):
         """Return diff pair dimensions as a dict from a KiCad BOARD object."""
 
         # Can't iterate over a SwigPyObject. DIFF_PAIR_DIMENSION_Vector is not defined.
-        return {'diff pair dimensions list': []}
+        return {self.dict_key: []}
 
         # Get the design rules from the board.
         brd_drs = brd.GetDesignSettings()
 
         return {
-            'diff pair dimensions list': [{
+            self.dict_key: [{
                 'width': dp.m_Width,
                 'gap': dp.m_Gap,
                 'via gap': dp.m_ViaGap
@@ -350,11 +360,13 @@ class DiffPairDimensions(KinJector):
 class DesignRules(KinJector):
     """Inject/eject board design rules to/from a KiCad BOARD object."""
 
+    dict_key = 'design rules'
+
     def inject(self, data_dict, brd):
         """Inject design rule settings from data_dict into a KiCad BOARD object."""
 
         # Get the design rule settings from the data dict.
-        data_drs = data_dict.get('design rules', {})
+        data_drs = data_dict.get(self.dict_key, {})
 
         # Get the design rules from the board.
         brd_drs = brd.GetDesignSettings()
@@ -465,7 +477,7 @@ class DesignRules(KinJector):
         brd_drs = brd.GetDesignSettings()
 
         data_drs = {
-            'design rules': {
+            self.dict_key: {
                 'board thickness': brd_drs.GetBoardThickness(),
                 '# copper layers': brd_drs.GetCopperLayerCount(),
                 'hole to hole spacing': brd_drs.m_HoleToHoleMin,
@@ -490,12 +502,12 @@ class DesignRules(KinJector):
         # own classes for ejecting their data from a board.
 
         # Update data dict with the board track widths.
-        data_drs['design rules'].update(TrackWidths().eject(brd))
+        data_drs[self.dict_key].update(TrackWidths().eject(brd))
 
         # Update data dict with the board via dimensions.
-        data_drs['design rules'].update(ViaDimensions().eject(brd))
+        data_drs[self.dict_key].update(ViaDimensions().eject(brd))
 
         # Update data dict with the board differential pair dimensions.
-        data_drs['design rules'].update(DiffPairDimensions().eject(brd))
+        data_drs[self.dict_key].update(DiffPairDimensions().eject(brd))
 
         return data_drs
