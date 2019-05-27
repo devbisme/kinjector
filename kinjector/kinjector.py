@@ -168,15 +168,18 @@ class PartsByRef(KinJector):
         brd_parts = {self.get_id(m): m for m in brd.GetModules()}
 
         # Assign the data in the data_dict to the parts on the board.
-        for data_part_ref, data_part_data in data_dict[self.dict_key].items():
+        try:
+            for data_part_ref, data_part_data in data_dict[self.dict_key].items():
 
-            # Check to see if the part from the data dict exists on the board.
-            try:
-                brd_part = brd_parts[data_part_ref]
-            except IndexError:
-                continue  # Should we signal an error for a missing part?
+                # Check to see if the part from the data dict exists on the board.
+                try:
+                    brd_part = brd_parts[data_part_ref]
+                except KeyError:
+                    continue  # Should we signal an error for a missing part?
 
-            self.part_class.inject(data_part_data, brd_part)
+                self.part_class.inject(data_part_data, brd_part)
+        except KeyError:
+            pass # No part data in data_dict to inject.
 
     def eject(self, brd):
         """Return part data from parts as a dict in a KiCad BOARD object."""
@@ -238,7 +241,7 @@ class PartPositions(PartsByRef):
     """Inject/eject part (X,Y), rotation, front/back to/from a KiCad BOARD object."""
 
     PartsByRef.part_class = PartPosition()
-    PartsByRef.dict_key = 'part positions'
+    PartsByRef.dict_key = 'positions'
 
 
 class TrackWidths(KinJector):
@@ -360,7 +363,7 @@ class DiffPairDimensions(KinJector):
 class DesignRules(KinJector):
     """Inject/eject board design rules to/from a KiCad BOARD object."""
 
-    dict_key = 'design rules'
+    dict_key = 'settings'
 
     def inject(self, data_dict, brd):
         """Inject design rule settings from data_dict into a KiCad BOARD object."""
@@ -464,11 +467,17 @@ class DesignRules(KinJector):
         # Load the track widths back into the board.
         TrackWidths().inject(data_drs, brd)
 
-        # Load the updated via dimensions back into the board.
+        # Load the via dimensions back into the board.
         ViaDimensions().inject(data_drs, brd)
 
-        # Load the updated diff pair dimensions back into the board.
+        # Load the diff pair dimensions back into the board.
         DiffPairDimensions().inject(data_drs, brd)
+
+        # Load the net class definitions into the board.
+        NetClassDefs().inject(data_drs, brd)
+
+        # Load the net/net class assignments into the board.
+        NetClassAssigns().inject(data_drs, brd)
 
     def eject(self, brd):
         """Return design rule settings as a dict from a KiCad BOARD object."""
@@ -510,4 +519,37 @@ class DesignRules(KinJector):
         # Update data dict with the board differential pair dimensions.
         data_drs[self.dict_key].update(DiffPairDimensions().eject(brd))
 
+        # Update the data dict with the net class definitions.
+        data_drs[self.dict_key].update(NetClassDefs().eject(brd))
+
+        # Update the data dict with the net/net class assignments.
+        data_drs[self.dict_key].update(NetClassAssigns().eject(brd))
+
         return data_drs
+
+
+class Board(KinJector):
+    """Inject/eject board data to/from a KiCad BOARD object."""
+
+    dict_key = 'board'
+
+    def inject(self, data_dict, brd):
+        """Inject board data from data_dict into a KiCad BOARD object."""
+
+        # Get the design rule settings from the data dict.
+        brd_data = data_dict.get(self.dict_key, {})
+
+        # Load the design rules into the board.
+        DesignRules().inject(brd_data, brd)
+
+        # Load the module positions into the board.
+        PartPositions().inject(brd_data, brd)
+
+    def eject(self, brd):
+        """Return board data as a dict from a KiCad BOARD object."""
+
+        brd_data = {}
+
+        brd_data.update(DesignRules().eject(brd))
+        brd_data.update(PartPositions().eject(brd))
+        return {self.dict_key: brd_data}

@@ -1,5 +1,5 @@
 {
-    "design rules": {
+    "settings": {
         "solder paste margin ratio": 0.1, 
         "track width list": [
             250001, 

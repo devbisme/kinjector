@@ -1,5 +1,0 @@
-netclass assignments:
-  Net-(D1-Pad1): !!python/unicode 'Default'
-  Net-(D1-Pad2): !!python/unicode 'new_new_class'
-  Net-(R1-Pad2): !!python/unicode 'new_new_class'
-  Net-(R2-Pad1): !!python/unicode 'Default'
