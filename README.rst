@@ -12,7 +12,7 @@ KinJector
 
 
 
-Inject/eject JSON data to/from KiCad files.
+Inject/eject JSON/YAML data to/from KiCad Board files.
 
 
 * Free software: MIT license

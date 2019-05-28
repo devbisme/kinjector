@@ -1,0 +1,98 @@
+{
+    "board": {
+        "modules": {
+            "R3": {
+                "position": {
+                    "y": 102137001, 
+                    "x": 166187001, 
+                    "angle": 31, 
+                    "side": "bottom"
+                }
+            }, 
+            "R1": {
+                "position": {
+                    "y": 102137002, 
+                    "x": 161417002, 
+                    "angle": 122, 
+                    "side": "top"
+                }
+            }, 
+            "R2": {
+                "position": {
+                    "y": 99187003, 
+                    "x": 166187003, 
+                    "angle": 213, 
+                    "side": "bottom"
+                }
+            }, 
+            "D1": {
+                "position": {
+                    "y": 99187004, 
+                    "x": 161417004, 
+                    "angle": 304, 
+                    "side": "top"
+                }
+            }
+        }, 
+        "settings": {
+            "solder paste margin ratio": 0.1, 
+            "solder paste margin": 1, 
+            "uvia min drill size": 100001, 
+            "solder mask margin": 51001, 
+            "via dimensions list": [
+                {
+                    "diameter": 800001, 
+                    "drill": 400001
+                }
+            ], 
+            "via min drill size": 300001, 
+            "track min width": 200001, 
+            "# copper layers": 4, 
+            "uvia min diameter": 200001, 
+            "hole to hole spacing": 1, 
+            "via min diameter": 200001, 
+            "netclasses": {
+                "Default": {
+                    "description": "", 
+                    "diff pair width": 200001, 
+                    "via drill": 400001, 
+                    "track width": 250001, 
+                    "uvia drill": 100001, 
+                    "diff pair gap": 250001, 
+                    "clearance": 200001, 
+                    "uvia diameter": 300001, 
+                    "via diameter": 800001
+                }, 
+                "new_new_class": {
+                    "description": "", 
+                    "diff pair width": 400001, 
+                    "via drill": 800001, 
+                    "track width": 500001, 
+                    "uvia drill": 200001, 
+                    "diff pair gap": 500001, 
+                    "clearance": 400001, 
+                    "uvia diameter": 600001, 
+                    "via diameter": 1600001
+                }
+            }, 
+            "netclass assignments": {
+                "Net-(D1-Pad1)": "new_new_class", 
+                "Net-(R1-Pad2)": "Default", 
+                "Net-(R2-Pad1)": "new_new_class", 
+                "Net-(D1-Pad2)": "Default"
+            }, 
+            "track width list": [
+                250001, 
+                1000001, 
+                650001
+            ], 
+            "prohibit courtyard overlap": true, 
+            "board thickness": 1600001, 
+            "uvia allowed": true, 
+            "solder mask min width": 500001, 
+            "require courtyards": true, 
+            "diff pair dimensions list": [], 
+            "blind/buried via allowed": true
+        }
+    }
+}

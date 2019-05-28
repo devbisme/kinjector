@@ -149,55 +149,10 @@ class NetClassAssigns(KinJector):
         return {self.dict_key: netclass_assignment_dict}
 
 
-class PartsByRef(KinJector):
-    """Inject/eject data to/from parts in a KiCad BOARD object by part reference."""
-
-    def __init__(self):
-        super(PartsByRef, self).__init__()
-        part_class = None
-        dict_key = None
-
-    @staticmethod
-    def get_id(module):
-        return str(module.GetReference())
-
-    def inject(self, data_dict, brd):
-        """Inject data from data_dict into parts of a KiCad BOARD object."""
-
-        # Get all the parts in the board indexed by references.
-        brd_parts = {self.get_id(m): m for m in brd.GetModules()}
-
-        # Assign the data in the data_dict to the parts on the board.
-        try:
-            for data_part_ref, data_part_data in data_dict[self.dict_key].items():
-
-                # Check to see if the part from the data dict exists on the board.
-                try:
-                    brd_part = brd_parts[data_part_ref]
-                except KeyError:
-                    continue  # Should we signal an error for a missing part?
-
-                self.part_class.inject(data_part_data, brd_part)
-        except KeyError:
-            pass # No part data in data_dict to inject.
-
-    def eject(self, brd):
-        """Return part data from parts as a dict in a KiCad BOARD object."""
-
-        # Get all the parts in the board indexed by references.
-        brd_parts = {self.get_id(m): m for m in brd.GetModules()}
-
-        # Extract the data from each part on the board.
-        part_data_dict = {
-            part_ref: self.part_class.eject(part)
-            for (part_ref, part) in brd_parts.items()
-        }
-
-        return {self.dict_key: part_data_dict}
-
-
-class PartPosition(KinJector):
+class ModulePosition(KinJector):
     """Inject/eject part (X,Y), rotation, front/back to/from a KiCad MODULE object."""
+
+    dict_key = 'position'
 
     # Index top and bottom of boards by their layer number in PCBNEW.
     top_btm = {F_Cu: 'top', B_Cu: 'bottom'}
@@ -205,22 +160,27 @@ class PartPosition(KinJector):
     def inject(self, data_dict, module):
         """Inject part position from data_dict into a KiCad MODULE object."""
 
+        try:
+            pos_data = data_dict[self.dict_key]
+        except KeyError:
+            return # No position data to inject into MODULE object.
+
         # Set the (X,Y) position.
         try:
-            module.SetPosition(wxPoint(data_dict['x'], data_dict['y']))
+            module.SetPosition(wxPoint(pos_data['x'], pos_data['y']))
         except IndexError:
             pass  # No (X,Y) data, so skip it.
 
         # Set the orientation (in degrees).
         try:
-            module.SetOrientationDegrees(data_dict['angle'])
+            module.SetOrientationDegrees(pos_data['angle'])
         except IndexError:
             pass  # No angle data, so skip it.
 
         # Set whether the board is on the top or bottom side of the PCB.
         module_side = self.top_btm[module.GetLayer()]
         try:
-            if module_side != data_dict['side'].lower():
+            if module_side != pos_data['side'].lower():
                 module.Flip(module.GetPosition())
         except IndexError:
             pass  # No top-side/bottom-side data, so skip it.
@@ -230,18 +190,72 @@ class PartPosition(KinJector):
 
         pos = module.GetPosition()
         return {
-            'x': pos.x,
-            'y': pos.y,
-            'angle': module.GetOrientationDegrees(),
-            'side': self.top_btm[module.GetLayer()],
+            self.dict_key: {
+                'x': pos.x,
+                'y': pos.y,
+                'angle': module.GetOrientationDegrees(),
+                'side': self.top_btm[module.GetLayer()],
+            }
         }
 
+class Module(KinJector):
+    """Inject/eject part data to/from a KiCad MODULE object."""
 
-class PartPositions(PartsByRef):
-    """Inject/eject part (X,Y), rotation, front/back to/from a KiCad BOARD object."""
+    def inject(self, data_dict, module):
+        """Inject part data from data_dict into a KiCad MODULE object."""
 
-    PartsByRef.part_class = PartPosition()
-    PartsByRef.dict_key = 'positions'
+        ModulePosition().inject(data_dict, module)
+
+    def eject(self, module):
+        """Return part data as a dict from a KiCad MODULE object."""
+        
+        data_dict = {}
+        data_dict.update(ModulePosition().eject(module))
+        return data_dict
+
+
+class ModulesByRef(KinJector):
+    """Inject/eject data to/from parts in a KiCad BOARD object by part reference."""
+
+    dict_key = 'modules'
+
+    @staticmethod
+    def get_id(module):
+        return str(module.GetReference())
+
+    def inject(self, data_dict, brd):
+        """Inject data from data_dict into parts of a KiCad BOARD object."""
+
+        # Get the module data from the data dict.
+        data_modules = data_dict.get(self.dict_key, {})
+
+        # Get all the parts in the board indexed by references.
+        brd_modules = {self.get_id(m): m for m in brd.GetModules()}
+
+        # Assign the data in the data_dict to the parts on the board.
+        for data_module_ref, data_module_data in data_modules.items():
+
+            # Check to see if the part from the data dict exists on the board.
+            try:
+                brd_module = brd_modules[data_module_ref]
+            except KeyError:
+                continue  # Should we signal an error for a missing part?
+
+            Module().inject(data_module_data, brd_module)
+
+    def eject(self, brd):
+        """Return part data from parts as a dict in a KiCad BOARD object."""
+
+        # Get all the parts in the board indexed by references.
+        brd_parts = {self.get_id(m): m for m in brd.GetModules()}
+
+        # Extract the data from each part on the board.
+        part_data_dict = {
+            part_ref: Module().eject(part)
+            for (part_ref, part) in brd_parts.items()
+        }
+
+        return {self.dict_key: part_data_dict}
 
 
 class TrackWidths(KinJector):
@@ -543,7 +557,7 @@ class Board(KinJector):
         DesignRules().inject(brd_data, brd)
 
         # Load the module positions into the board.
-        PartPositions().inject(brd_data, brd)
+        ModulesByRef().inject(brd_data, brd)
 
     def eject(self, brd):
         """Return board data as a dict from a KiCad BOARD object."""
@@ -551,5 +565,5 @@ class Board(KinJector):
         brd_data = {}
 
         brd_data.update(DesignRules().eject(brd))
-        brd_data.update(PartPositions().eject(brd))
+        brd_data.update(ModulesByRef().eject(brd))
         return {self.dict_key: brd_data}
