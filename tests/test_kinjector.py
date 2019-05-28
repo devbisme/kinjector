@@ -3,8 +3,8 @@
 import json
 import yaml
 import pytest
-from pcbnew import LoadBoard
-from kinjector import kinjector
+import pcbnew
+import kinjector
 from .setup_teardown import *  # This creates YAML test files from the JSON files.
 
 
@@ -31,14 +31,14 @@ def test_inject_eject(brd_file, data_file, obj):
         ],
     ]:
         # Inject file data into board and store updated board in a new file.
-        brd = LoadBoard(brd_file + '.kicad_pcb')
+        brd = pcbnew.LoadBoard(brd_file + '.kicad_pcb')
         with open(data_file + '_in' + ext, 'r') as data_fp:
             data_dict = load(data_fp, **load_kw)
         obj.inject(data_dict, brd)
         brd.Save(brd_file + '_out.kicad_pcb')
 
         # Extract info from the updated board and store it in a new data file.
-        brd = LoadBoard(brd_file + '_out.kicad_pcb')
+        brd = pcbnew.LoadBoard(brd_file + '_out.kicad_pcb')
         data_dict = obj.eject(brd)
         with open(data_file + '_out' + ext, 'w') as data_fp:
             dump(data_dict, data_fp, **dump_kw)

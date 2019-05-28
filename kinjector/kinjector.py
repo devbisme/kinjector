@@ -22,17 +22,27 @@
 
 import copy
 import json
-from collections import namedtuple
+import collections
 
 from pcbnew import (NETCLASSPTR as NCP, F_Cu, B_Cu, wxPoint, intVector,
                     VIA_DIMENSION, VIA_DIMENSION_Vector, DIFF_PAIR_DIMENSION,
                     DIFF_PAIR_DIMENSION_swigregister)
 
 
+def merge_dicts(dct, merge_dct):
+    """ Dict merge that recurses into dicts and updates keys."""
+    for k, v in merge_dct.items():
+        if (k in dct and isinstance(dct[k], dict)
+                and isinstance(merge_dct[k], collections.Mapping)):
+            merge_dicts(dct[k], merge_dct[k])
+        else:
+            dct[k] = merge_dct[k]
+
+
 class KinJector(object):
 
     # Named tuple for storing getter/setter functions.
-    GetSet = namedtuple('GetSet', ['get', 'set'])
+    GetSet = collections.namedtuple('GetSet', ['get', 'set'])
 
 
 class NetClassDefs(KinJector):
@@ -163,7 +173,7 @@ class ModulePosition(KinJector):
         try:
             pos_data = data_dict[self.dict_key]
         except KeyError:
-            return # No position data to inject into MODULE object.
+            return  # No position data to inject into MODULE object.
 
         # Set the (X,Y) position.
         try:
@@ -198,6 +208,7 @@ class ModulePosition(KinJector):
             }
         }
 
+
 class Module(KinJector):
     """Inject/eject part data to/from a KiCad MODULE object."""
 
@@ -208,7 +219,7 @@ class Module(KinJector):
 
     def eject(self, module):
         """Return part data as a dict from a KiCad MODULE object."""
-        
+
         data_dict = {}
         data_dict.update(ModulePosition().eject(module))
         return data_dict
@@ -563,7 +574,6 @@ class Board(KinJector):
         """Return board data as a dict from a KiCad BOARD object."""
 
         brd_data = {}
-
         brd_data.update(DesignRules().eject(brd))
         brd_data.update(ModulesByRef().eject(brd))
         return {self.dict_key: brd_data}
