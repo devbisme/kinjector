@@ -11,7 +11,7 @@ Inject/eject JSON/YAML data to/from KiCad Board files.
 
 
 * Free software: MIT license
-* Documentation: https://xesscorp.github.io/kinjector/docs/_site/index.html .
+* Documentation: https://xesscorp.github.io/kinjector
 
 
 Features
