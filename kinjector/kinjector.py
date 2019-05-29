@@ -19,18 +19,31 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
+"""
+A module for injecting values from a dict into a KiCad PCB board file,
+and for ejecting values from a board file into a dict.
+"""
 
 import copy
 import json
 import collections
 
 from pcbnew import (NETCLASSPTR as NCP, F_Cu, B_Cu, wxPoint, intVector,
-                    VIA_DIMENSION, VIA_DIMENSION_Vector, DIFF_PAIR_DIMENSION,
-                    DIFF_PAIR_DIMENSION_swigregister)
+                    VIA_DIMENSION, VIA_DIMENSION_Vector, DIFF_PAIR_DIMENSION)
 
 
 def merge_dicts(dct, merge_dct):
-    """ Dict merge that recurses into dicts and updates keys."""
+    """ 
+    Dict merge that recurses through both dicts and updates keys.
+
+    Args:
+        dct: The dict that will be updated.
+        merge_dct: The dict whose values will be inserted into dct.
+
+    Returns:
+        Nothing.
+    """
+
     for k, v in merge_dct.items():
         if (k in dct and isinstance(dct[k], dict)
                 and isinstance(merge_dct[k], collections.Mapping)):
@@ -40,6 +53,7 @@ def merge_dicts(dct, merge_dct):
 
 
 class KinJector(object):
+    """Base KinJector object."""
 
     # Named tuple for storing getter/setter functions.
     GetSet = collections.namedtuple('GetSet', ['get', 'set'])
@@ -100,14 +114,13 @@ class NetClassDefs(KinJector):
                                                      value)
 
     def eject(self, brd):
-        """Return net class definitions as a dict from a KiCad BOARD object."""
+        """Return a dict of net class definitions from a KiCad BOARD object."""
 
         # Extract the parameters for each net class in the board.
         netclass_dict = {}
-        for netclass_name, netclass_parameters in brd.GetAllNetClasses().items(
-        ):
+        for netclass_name, netclass_params in brd.GetAllNetClasses().items():
             netclass_dict[str(netclass_name)] = {
-                key: method.get(netclass_parameters)
+                key: method.get(netclass_params)
                 for (key, method) in self.key_method_map.items()
             }
 
@@ -123,7 +136,7 @@ class NetClassAssigns(KinJector):
         """Inject net class assignments from data_dict into a KiCad BOARD object."""
 
         # Get the netclass assignment for each net from the data dict.
-        data_netclass_assignments = data_dict.get(self.dict_key, {})
+        data_netclass_assigns = data_dict.get(self.dict_key, {})
 
         # Get all the nets in the board indexed by net names.
         brd_nets = brd.GetNetInfo().NetsByName()
@@ -132,7 +145,7 @@ class NetClassAssigns(KinJector):
         brd_netclasses = brd.GetAllNetClasses()
 
         # Assign the JSON nets to the appropriate netclasses in the board.
-        for data_net_name, data_net_class_name in data_netclass_assignments.items(
+        for data_net_name, data_net_class_name in data_netclass_assigns.items(
         ):
             # Check to see if the net from the data dict exists in the board.
             try:
@@ -148,7 +161,7 @@ class NetClassAssigns(KinJector):
             brd_net.SetClass(new_net_class)
 
     def eject(self, brd):
-        """Return net class assignments as a dict from a KiCad BOARD object."""
+        """Return a dict of net class assignments from a KiCad BOARD object."""
 
         # Extract the netclass assigned to each net in the board.
         netclass_assignment_dict = {
@@ -196,7 +209,7 @@ class ModulePosition(KinJector):
             pass  # No top-side/bottom-side data, so skip it.
 
     def eject(self, module):
-        """Return part position as a dict from a KiCad MODULE object."""
+        """Return a dict with the part position from a KiCad MODULE object."""
 
         pos = module.GetPosition()
         return {
@@ -218,7 +231,7 @@ class Module(KinJector):
         ModulePosition().inject(data_dict, module)
 
     def eject(self, module):
-        """Return part data as a dict from a KiCad MODULE object."""
+        """Return a dict of part data from a KiCad MODULE object."""
 
         data_dict = {}
         data_dict.update(ModulePosition().eject(module))
@@ -252,6 +265,7 @@ class ModulesByRef(KinJector):
             except KeyError:
                 continue  # Should we signal an error for a missing part?
 
+            # Inject the data into the part.
             Module().inject(data_module_data, brd_module)
 
     def eject(self, brd):
@@ -260,7 +274,7 @@ class ModulesByRef(KinJector):
         # Get all the parts in the board indexed by references.
         brd_parts = {self.get_id(m): m for m in brd.GetModules()}
 
-        # Extract the data from each part on the board.
+        # Get data from each part and store it in dict using part ref as key.
         part_data_dict = {
             part_ref: Module().eject(part)
             for (part_ref, part) in brd_parts.items()
@@ -399,6 +413,9 @@ class DesignRules(KinJector):
         # Get the design rules from the board.
         brd_drs = brd.GetDesignSettings()
 
+        # Update the design rules with values from the data dict.
+        # If a particular design rule parameter doesn't exist, just pass it by.
+
         try:
             brd_drs.SetBoardThickness(data_drs['board thickness'])
         except KeyError:
@@ -410,7 +427,6 @@ class DesignRules(KinJector):
             pass
 
         try:
-            #brd_drs.m_HoleToHoleMin = data_drs['hole to hole spacing']
             brd_drs.SetMinHoleSeparation(data_drs['hole to hole spacing'])
         except KeyError:
             pass
@@ -505,52 +521,50 @@ class DesignRules(KinJector):
         NetClassAssigns().inject(data_drs, brd)
 
     def eject(self, brd):
-        """Return design rule settings as a dict from a KiCad BOARD object."""
+        """Return a dict of design rule settings from a KiCad BOARD object."""
 
         # Get the design rules from the board.
         brd_drs = brd.GetDesignSettings()
 
         data_drs = {
-            self.dict_key: {
-                'board thickness': brd_drs.GetBoardThickness(),
-                '# copper layers': brd_drs.GetCopperLayerCount(),
-                'hole to hole spacing': brd_drs.m_HoleToHoleMin,
-                'prohibit courtyard overlap':
-                brd_drs.m_ProhibitOverlappingCourtyards,
-                'require courtyards': brd_drs.m_RequireCourtyards,
-                'blind/buried via allowed': brd_drs.m_BlindBuriedViaAllowed,
-                'uvia allowed': brd_drs.m_MicroViasAllowed,
-                'uvia min drill size': brd_drs.m_MicroViasMinDrill,
-                'uvia min diameter': brd_drs.m_MicroViasMinSize,
-                'via min drill size': brd_drs.m_ViasMinDrill,
-                'via min diameter': brd_drs.m_ViasMinSize,
-                'track min width': brd_drs.m_TrackMinWidth,
-                'solder mask margin': brd_drs.m_SolderMaskMargin,
-                'solder mask min width': brd_drs.m_SolderMaskMinWidth,
-                'solder paste margin': brd_drs.m_SolderPasteMargin,
-                'solder paste margin ratio': brd_drs.m_SolderPasteMarginRatio,
-            }
+            'board thickness': brd_drs.GetBoardThickness(),
+            '# copper layers': brd_drs.GetCopperLayerCount(),
+            'hole to hole spacing': brd_drs.m_HoleToHoleMin,
+            'prohibit courtyard overlap':
+            brd_drs.m_ProhibitOverlappingCourtyards,
+            'require courtyards': brd_drs.m_RequireCourtyards,
+            'blind/buried via allowed': brd_drs.m_BlindBuriedViaAllowed,
+            'uvia allowed': brd_drs.m_MicroViasAllowed,
+            'uvia min drill size': brd_drs.m_MicroViasMinDrill,
+            'uvia min diameter': brd_drs.m_MicroViasMinSize,
+            'via min drill size': brd_drs.m_ViasMinDrill,
+            'via min diameter': brd_drs.m_ViasMinSize,
+            'track min width': brd_drs.m_TrackMinWidth,
+            'solder mask margin': brd_drs.m_SolderMaskMargin,
+            'solder mask min width': brd_drs.m_SolderMaskMinWidth,
+            'solder paste margin': brd_drs.m_SolderPasteMargin,
+            'solder paste margin ratio': brd_drs.m_SolderPasteMarginRatio,
         }
 
         # The following items are part of the design rules but they have their
         # own classes for ejecting their data from a board.
 
         # Update data dict with the board track widths.
-        data_drs[self.dict_key].update(TrackWidths().eject(brd))
+        data_drs.update(TrackWidths().eject(brd))
 
         # Update data dict with the board via dimensions.
-        data_drs[self.dict_key].update(ViaDimensions().eject(brd))
+        data_drs.update(ViaDimensions().eject(brd))
 
         # Update data dict with the board differential pair dimensions.
-        data_drs[self.dict_key].update(DiffPairDimensions().eject(brd))
+        data_drs.update(DiffPairDimensions().eject(brd))
 
         # Update the data dict with the net class definitions.
-        data_drs[self.dict_key].update(NetClassDefs().eject(brd))
+        data_drs.update(NetClassDefs().eject(brd))
 
         # Update the data dict with the net/net class assignments.
-        data_drs[self.dict_key].update(NetClassAssigns().eject(brd))
+        data_drs.update(NetClassAssigns().eject(brd))
 
-        return data_drs
+        return {self.dict_key: data_drs}
 
 
 class Board(KinJector):
@@ -571,7 +585,7 @@ class Board(KinJector):
         ModulesByRef().inject(brd_data, brd)
 
     def eject(self, brd):
-        """Return board data as a dict from a KiCad BOARD object."""
+        """Return a dict of board data from a KiCad BOARD object."""
 
         brd_data = {}
         brd_data.update(DesignRules().eject(brd))

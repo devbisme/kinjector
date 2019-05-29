@@ -31,19 +31,14 @@ setup(
     author=author,
     author_email=email,
     classifiers=[
-        'Development Status :: 2 - Pre-Alpha',
+        'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',
         'Natural Language :: English',
         "Programming Language :: Python :: 2",
         'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.4',
-        'Programming Language :: Python :: 3.5',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
     ],
-    description="Inject/eject JSON data to/from KiCad files.",
+    description="Inject/eject JSON/YAML data to/from KiCad files.",
     entry_points={
         'console_scripts': [
             'kinjector=kinjector.cli:main',

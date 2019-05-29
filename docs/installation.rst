@@ -4,48 +4,24 @@
 Installation
 ============
 
+KinJector needs KiCad's ``pcbnew`` Python module to run.
+For this reason, you'll probably want to install it in KiCad's Python environment.
+Under Windows, you can do this by opening a terminal and issuing the command:
 
-Stable release
---------------
+.. code-block:: console
 
-To install KinJector, run this command in your terminal:
+    $ set path=C:\Program Files\kicad\bin;%path%
+
+Then to install KinJector, run this command in your terminal:
 
 .. code-block:: console
 
     $ pip install kinjector
 
 This is the preferred method to install KinJector, as it will always install the most recent stable release.
-
-If you don't have `pip`_ installed, this `Python installation guide`_ can guide
-you through the process.
-
-.. _pip: https://pip.pypa.io
-.. _Python installation guide: http://docs.python-guide.org/en/latest/starting/installation/
-
-
-From sources
-------------
-
-The sources for KinJector can be downloaded from the `Github repo`_.
-
-You can either clone the public repository:
+However, if you want the latest features *before* a stable release is made, you can get
+that with this command:
 
 .. code-block:: console
 
-    $ git clone git://github.com/xesscorp/kinjector
-
-Or download the `tarball`_:
-
-.. code-block:: console
-
-    $ curl  -OL https://github.com/xesscorp/kinjector/tarball/master
-
-Once you have a copy of the source, you can install it with:
-
-.. code-block:: console
-
-    $ python setup.py install
-
-
-.. _Github repo: https://github.com/xesscorp/kinjector
-.. _tarball: https://github.com/xesscorp/kinjector/tarball/master
+    $ pip install git+https://github.com/xesscorp/kinjector
