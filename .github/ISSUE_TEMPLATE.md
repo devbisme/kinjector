@@ -1,5 +1,6 @@
-* KinJector version:
-* Python version:
+* KinJector version: (Use `kinjector -V` to get this.)
+* KiCad version: (Use `Help => About KiCad => Copy Version Info` to get this.)
+* Python version: (Use `python -V` to get this.)
 * Operating System:
 
 ### Description
@@ -11,5 +12,4 @@ Tell us what happened, what went wrong, and what you expected to happen.
 
 ```
 Paste the command(s) you ran and the output.
-If there was a crash, please include the traceback here.
 ```
