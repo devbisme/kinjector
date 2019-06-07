@@ -28,8 +28,9 @@ import copy
 import json
 import collections
 
-from pcbnew import (NETCLASSPTR as NCP, F_Cu, B_Cu, wxPoint, intVector,
-                    VIA_DIMENSION, VIA_DIMENSION_Vector, DIFF_PAIR_DIMENSION)
+from pcbnew import (NETCLASSPTR as NCP, F_Cu, B_Cu, wxPoint, intVector, LSET,
+                    Refresh, VIA_DIMENSION, VIA_DIMENSION_Vector,
+                    DIFF_PAIR_DIMENSION)
 
 
 def merge_dicts(dct, merge_dct):
@@ -93,13 +94,19 @@ class NetClassDefs(KinJector):
         # Get all net class definitions from the data dict.
         data_netclass_defs = data_dict.get(self.dict_key, {})
 
-        # Get all the net classes in the board.
-        brd_netclasses = brd.GetAllNetClasses()
+        # Get all the net classes in the board except the Default class.
+        # Using brd.GetAllNetClasss() injects a duplicate of the Default into
+        # the set of net classes.
+        brd_netclasses = brd.GetNetClasses().NetClasses()
 
         # Update existing net classes in the board with new values from data
         # or create new net classes.
         for data_netclass_name, data_netclass_params in data_netclass_defs.items(
         ):
+
+            # Skip updates to the Default class. That's handled below.
+            if data_netclass_name == 'Default':
+                continue
 
             # Create a new net class if it doesn't already exist.
             if data_netclass_name not in brd_netclasses:
@@ -112,6 +119,18 @@ class NetClassDefs(KinJector):
             for key, value in data_netclass_params.items():
                 self.key_method_map[key.lower()].set(brd_netclass_params,
                                                      value)
+
+        # Update the Default net class.
+        try:
+            data_dflt_params = data_netclass_defs['Default']
+        except KeyError:
+            # No Default class was found in the data dict, so don't update Default.
+            pass
+        else:
+            # Update the Default net class from the data dict.
+            brd_dflt_params = brd.GetNetClasses().GetDefault()
+            for key, value in data_dflt_params.items():
+                self.key_method_map[key.lower()].set(brd_dflt_params, value)
 
     def eject(self, brd):
         """Return a dict of net class definitions from a KiCad BOARD object."""
@@ -142,7 +161,8 @@ class NetClassAssigns(KinJector):
         brd_nets = brd.GetNetInfo().NetsByName()
 
         # Get all the net classes in the board.
-        brd_netclasses = brd.GetAllNetClasses()
+        brd_netclasses = brd.GetNetClasses().NetClasses()
+        brd_dflt = brd.GetNetClasses().GetDefault()
 
         # Assign the JSON nets to the appropriate netclasses in the board.
         for data_net_name, data_net_class_name in data_netclass_assigns.items(
@@ -153,10 +173,21 @@ class NetClassAssigns(KinJector):
             except IndexError:
                 continue  # Should we signal an error for a missing net?
 
-            # Remove the net from its old net class and assign it to the new class.
-            old_net_class = brd_netclasses[brd_net.GetClassName()]
+            # Remove the net from its old net class ...
+            old_net_class_name = brd_net.GetClassName()
+            if old_net_class_name == 'Default':
+                old_net_class = brd_dflt
+            else:
+                old_net_class = brd_netclasses[old_net_class_name]
+            #old_net_class = brd_netclasses[brd_net.GetClassName()]
             old_net_class.NetNames().discard(data_net_name)
-            new_net_class = brd_netclasses[data_net_class_name]
+
+            # And assign the net to its new class.
+            if data_net_class_name == 'Default':
+                new_net_class = brd_dflt
+            else:
+                new_net_class = brd_netclasses[data_net_class_name]
+            #new_net_class = brd_netclasses[data_net_class_name]
             new_net_class.NetNames().add(data_net_name)
             brd_net.SetClass(new_net_class)
 
@@ -305,6 +336,7 @@ class TrackWidths(KinJector):
 
         # Load the updated track widths back into the board.
         brd.SetDesignSettings(brd_drs)
+        Refresh()  # Refresh the board with the new data.
 
     def eject(self, brd):
         """Return JSON track widths from a KiCad BOARD object."""
@@ -312,7 +344,9 @@ class TrackWidths(KinJector):
         # Get the design rules from the board.
         brd_drs = brd.GetDesignSettings()
 
-        return {self.dict_key: [w for w in brd_drs.m_TrackWidthList]}
+        # Return every track width except the first one because that's
+        # set by the Default net class.
+        return {self.dict_key: [w for w in brd_drs.m_TrackWidthList][1:]}
 
 
 class ViaDimensions(KinJector):
@@ -339,6 +373,7 @@ class ViaDimensions(KinJector):
 
         # Load the updated via dimensions back into the board.
         brd.SetDesignSettings(brd_drs)
+        Refresh()  # Refresh the board with the new data.
 
     def eject(self, brd):
         """Return via dimensions as a dict from a KiCad BOARD object."""
@@ -346,11 +381,13 @@ class ViaDimensions(KinJector):
         # Get the design rules from the board.
         brd_drs = brd.GetDesignSettings()
 
+        # Return every via dimension except the first one because that's
+        # set by the Default net class.
         return {
             self.dict_key: [{
                 'diameter': v.m_Diameter,
                 'drill': v.m_Drill
-            } for v in brd_drs.m_ViasDimensionsList]
+            } for v in brd_drs.m_ViasDimensionsList[1:]]
         }
 
 
@@ -380,6 +417,7 @@ class DiffPairDimensions(KinJector):
 
         # Load the updated diff pair dimensions back into the board.
         brd.SetDesignSettings(brd_drs)
+        Refresh()  # Refresh the board with the new data.
 
     def eject(self, brd):
         """Return diff pair dimensions as a dict from a KiCad BOARD object."""
@@ -396,6 +434,60 @@ class DiffPairDimensions(KinJector):
                 'gap': dp.m_Gap,
                 'via gap': dp.m_ViaGap
             } for dp in brd_drs.m_DiffPairDimensionsList]
+        }
+
+
+class Layers(KinJector):
+    """Inject/eject enabled/visible layers to/from a KiCad board object."""
+
+    dict_key = 'layers'
+
+    def inject(self, data_dict, brd):
+        """Inject enabled/visible layers from data_dict into a KiCad BOARD object."""
+
+        # Get the design rule settings from the data dict.
+        data_drs = data_dict.get(self.dict_key, {})
+
+        # Get the design rules from the board.
+        brd_drs = brd.GetDesignSettings()
+
+        try:
+            # Create an LSET where the bit is set for each enabled layer.
+            lset = LSET()
+            for l in data_drs['enabled']:
+                lset.AddLayer(l)
+            # Enable the specified layers while disabling the rest.
+            brd_drs.SetEnabledLayers(lset)
+            brd.SetEnabledLayers(lset)
+        except KeyError:
+            pass
+
+        try:
+            # Create an LSET where the bit is set for each visible layer.
+            lset = LSET()
+            for l in data_drs['visible']:
+                lset.AddLayer(l)
+            # Make the specified layers visible while hiiding the rest.
+            brd_drs.SetVisibleLayers(lset)
+            brd.SetVisibleLayers(lset)
+        except KeyError:
+            pass
+
+        # Load the updated diff pair dimensions back into the board.
+        brd.SetDesignSettings(brd_drs)
+        Refresh()  # Refresh the board with the new data.
+
+    def eject(self, brd):
+        """Return enabled/visible layers as a dict from a KiCad BOARD object."""
+
+        # Get the design rules from the board.
+        brd_drs = brd.GetDesignSettings()
+
+        return {
+            self.dict_key: {
+                'enabled': [l for l in brd_drs.GetEnabledLayers().Seq()],
+                'visible': [l for l in brd_drs.GetVisibleLayers().Seq()],
+            }
         }
 
 
@@ -501,6 +593,7 @@ class DesignRules(KinJector):
 
         # Load the updated design rules back into the board.
         brd.SetDesignSettings(brd_drs)
+        Refresh()  # Refresh the board with the new data.
 
         # The following items are part of the design rules but they have their
         # own classes for injecting their data into a board.
@@ -519,6 +612,9 @@ class DesignRules(KinJector):
 
         # Load the net/net class assignments into the board.
         NetClassAssigns().inject(data_drs, brd)
+
+        # Load the enabled/visible layers into the board.
+        Layers().inject(data_drs, brd)
 
     def eject(self, brd):
         """Return a dict of design rule settings from a KiCad BOARD object."""
@@ -563,6 +659,9 @@ class DesignRules(KinJector):
 
         # Update the data dict with the net/net class assignments.
         data_drs.update(NetClassAssigns().eject(brd))
+
+        # Update the data dict with the enabled/visible layers.
+        data_drs.update(Layers().eject(brd))
 
         return {self.dict_key: data_drs}
 
