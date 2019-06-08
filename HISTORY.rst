@@ -3,10 +3,18 @@ History
 =======
 
 
+0.0.3 (2019-06-07)
+------------------
+
+* Add ability to inject/eject layer enables and visibility.
+
+
 0.0.2 (2019-05-29)
 ------------------
 
-* Extended to work on both JSON and YAML file formats.
+* Added ability to inject/eject part (X,Y), orientation, and PCB top/bottom-side.
+* Added ability to inject/eject board design rules.
+* Now works with both JSON and YAML file formats.
 * Unit tests added.
 * Command-line tool added.
 * Documentation added.

@@ -23,6 +23,7 @@ It can be used in two ways:
 The data file can contain information on:
 
 * Design rule settings (allowable track widths, via sizes, etc.);
+* Enabled board layers and layer visibility;
 * Net class definitions;
 * Assignments of nets to net classes;
 * Part information such as (X,Y) position, angle of orientation, and location on
