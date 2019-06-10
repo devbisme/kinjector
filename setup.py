@@ -7,7 +7,7 @@ from setuptools import setup, find_packages
 
 author = 'XESS Corp.'
 email = 'info@xess.com'
-version = '0.0.3'
+version = '0.0.4'
 
 if 'sdist' in sys.argv[1:]:
     with open('kinjector/pckg_info.py', 'w') as f:
@@ -20,7 +20,9 @@ with open('README.rst') as readme_file:
 with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
-requirements = []
+requirements = [
+    'pyyaml',
+]
 
 setup_requirements = [
     'pytest-runner',

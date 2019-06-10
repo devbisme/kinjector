@@ -26,6 +26,7 @@ The data file can contain information on:
 * Enabled board layers and layer visibility;
 * Net class definitions;
 * Assignments of nets to net classes;
+* Plot settings (format, output layers, etc.);
 * Part information such as (X,Y) position, angle of orientation, and location on
   the top or bottom side of the PCB.
 
