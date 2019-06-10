@@ -1,19 +1,19 @@
 {
     "board": {
         "modules": {
-            "R3": {
+            "D1": {
                 "position": {
-                    "y": 102137001, 
-                    "x": 166187001, 
-                    "angle": 31, 
-                    "side": "bottom"
+                    "y": 99187004, 
+                    "x": 161417004, 
+                    "angle": 304.0, 
+                    "side": "top"
                 }
             }, 
             "R1": {
                 "position": {
                     "y": 102137002, 
                     "x": 161417002, 
-                    "angle": 122, 
+                    "angle": 122.0, 
                     "side": "top"
                 }
             }, 
@@ -21,24 +21,132 @@
                 "position": {
                     "y": 99187003, 
                     "x": 166187003, 
-                    "angle": 213, 
+                    "angle": 213.0, 
                     "side": "bottom"
                 }
             }, 
-            "D1": {
+            "R3": {
                 "position": {
-                    "y": 99187004, 
-                    "x": 161417004, 
-                    "angle": 304, 
-                    "side": "top"
+                    "y": 102137001, 
+                    "x": 166187001, 
+                    "angle": 31.0, 
+                    "side": "bottom"
                 }
             }
         }, 
         "settings": {
             "solder paste margin ratio": 0.1, 
+            "track width list": [
+                250001, 
+                1000001, 
+                650001
+            ], 
+            "solder mask min width": 500001, 
+            "track min width": 200001, 
             "solder paste margin": 1, 
+            "hole to hole spacing": 0, 
+            "netclass assignments": {
+                "": "Default", 
+                "Net-(D1-Pad1)": "new_new_class", 
+                "Net-(R1-Pad2)": "Default", 
+                "Net-(R2-Pad1)": "new_new_class", 
+                "Net-(D1-Pad2)": "Default"
+            }, 
+            "board thickness": 1600001, 
+            "diff pair dimensions list": [], 
+            "uvia allowed": true, 
+            "layers": {
+                "visible": [
+                    0, 
+                    31, 
+                    32, 
+                    33, 
+                    34, 
+                    35, 
+                    36, 
+                    37, 
+                    38, 
+                    39, 
+                    40, 
+                    41, 
+                    42, 
+                    43, 
+                    44, 
+                    45, 
+                    46, 
+                    47, 
+                    48, 
+                    49
+                ], 
+                "enabled": [
+                    0, 
+                    1, 
+                    2, 
+                    31, 
+                    32, 
+                    33, 
+                    34, 
+                    35, 
+                    36, 
+                    37, 
+                    38, 
+                    39, 
+                    40, 
+                    41, 
+                    42, 
+                    43, 
+                    44, 
+                    45, 
+                    46, 
+                    47, 
+                    48, 
+                    49
+                ]
+            }, 
+            "plot": {
+                "subtract soldermask from silk": true, 
+                "mirrored plot": false, 
+                "color": true, 
+                "output directory": "", 
+                "generate gerber job file": true, 
+                "y scale factor": 1.0, 
+                "force a4 output": false, 
+                "use aux axis as origin": true, 
+                "plot mode": 1, 
+                "coordinate format": 6, 
+                "layers": [
+                    0, 
+                    1, 
+                    2, 
+                    31, 
+                    44
+                ], 
+                "hpgl pen size": 15.0, 
+                "scale": 1.0, 
+                "autoscale": false, 
+                "do not tent vias": true, 
+                "plot invisible text": true, 
+                "hpgl pen num": 1, 
+                "track width correction": 0, 
+                "exclude pcb edge": false, 
+                "plot pads on silk": true, 
+                "hpgl pen speed": 20, 
+                "include netlist attributes": true, 
+                "text mode": 3, 
+                "drill marks": 1, 
+                "format": 2, 
+                "default line width": 200000, 
+                "x scale factor": 1.0, 
+                "use x2 format": true, 
+                "scaling": 2, 
+                "skip npth pads": false, 
+                "plot border": false, 
+                "negative plot": false, 
+                "use protel filename extensions": true, 
+                "plot footprint refs": false, 
+                "plot footprint values": false
+            }, 
             "uvia min drill size": 100001, 
-            "solder mask margin": 51001, 
             "via dimensions list": [
                 {
                     "diameter": 800001, 
@@ -46,52 +154,36 @@
                 }
             ], 
             "via min drill size": 300001, 
-            "track min width": 200001, 
             "# copper layers": 4, 
             "uvia min diameter": 200001, 
-            "hole to hole spacing": 1, 
-            "via min diameter": 200001, 
+            "solder mask margin": 51001, 
             "netclasses": {
                 "Default": {
                     "description": "", 
                     "diff pair width": 200001, 
-                    "via drill": 400001, 
                     "track width": 250001, 
-                    "uvia drill": 100001, 
-                    "diff pair gap": 250001, 
-                    "clearance": 200001, 
                     "uvia diameter": 300001, 
+                    "uvia drill": 100001, 
+                    "via drill": 400001, 
+                    "clearance": 200001, 
+                    "diff pair gap": 250001, 
                     "via diameter": 800001
                 }, 
                 "new_new_class": {
                     "description": "", 
                     "diff pair width": 400001, 
-                    "via drill": 800001, 
                     "track width": 500001, 
-                    "uvia drill": 200001, 
-                    "diff pair gap": 500001, 
-                    "clearance": 400001, 
                     "uvia diameter": 600001, 
+                    "uvia drill": 200001, 
+                    "via drill": 800001, 
+                    "clearance": 400001, 
+                    "diff pair gap": 500001, 
                     "via diameter": 1600001
                 }
             }, 
-            "netclass assignments": {
-                "Net-(D1-Pad1)": "new_new_class", 
-                "Net-(R1-Pad2)": "Default", 
-                "Net-(R2-Pad1)": "new_new_class", 
-                "Net-(D1-Pad2)": "Default"
-            }, 
-            "track width list": [
-                250001, 
-                1000001, 
-                650001
-            ], 
-            "prohibit courtyard overlap": true, 
-            "board thickness": 1600001, 
-            "uvia allowed": true, 
-            "solder mask min width": 500001, 
-            "require courtyards": true, 
-            "diff pair dimensions list": [], 
+            "prohibit courtyard overlap": false, 
+            "require courtyards": false, 
+            "via min diameter": 200001, 
             "blind/buried via allowed": true
         }
     }
