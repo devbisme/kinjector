@@ -67,10 +67,173 @@ class KinJector(object):
     GetSet = collections.namedtuple("GetSet", ["get", "set"])
 
 
+class Layers(KinJector):
+    """Inject/eject enabled/visible layers to/from a KiCad board object."""
+
+    dict_key = "layers"
+
+    def inject(self, data_dict, brd):
+        """Inject enabled/visible layers from data_dict into a KiCad BOARD object."""
+
+        # Get the design rule settings from the data dict.
+        data_drs = data_dict.get(self.dict_key, {})
+
+        # Get the design rules from the board.
+        brd_drs = brd.GetDesignSettings()
+
+        try:
+            brd_drs.SetBoardThickness(data_drs["board thickness"])
+        except KeyError:
+            pass
+
+        try:
+            brd_drs.SetCopperLayerCount(data_drs["# copper layers"])
+        except KeyError:
+            pass
+
+        try:
+            # Create an LSET where the bit is set for each enabled layer.
+            lset = LSET()
+            for l in data_drs["enabled"]:
+                lset.AddLayer(l)
+            # Enable the specified layers while disabling the rest.
+            brd_drs.SetEnabledLayers(lset)
+            brd.SetEnabledLayers(lset)
+        except KeyError:
+            pass
+
+        try:
+            # Create an LSET where the bit is set for each visible layer.
+            lset = LSET()
+            for l in data_drs["visible"]:
+                lset.AddLayer(l)
+            # Make the specified layers visible while hiiding the rest.
+            brd_drs.SetVisibleLayers(lset)
+            brd.SetVisibleLayers(lset)
+        except KeyError:
+            pass
+
+        # Load the updated layer settings back into the board.
+        brd.SetDesignSettings(brd_drs)
+        Refresh()  # Refresh the board with the new data.
+
+    def eject(self, brd):
+        """Return enabled/visible layers as a dict from a KiCad BOARD object."""
+
+        # Get the design rules from the board.
+        brd_drs = brd.GetDesignSettings()
+
+        return {
+            self.dict_key: {
+                "board thickness": brd_drs.GetBoardThickness(),
+                "# copper layers": brd_drs.GetCopperLayerCount(),
+                "enabled": [l for l in brd_drs.GetEnabledLayers().Seq()],
+                "visible": [l for l in brd_drs.GetVisibleLayers().Seq()],
+            }
+        }
+
+
+class DesignRules(KinJector):
+    """Inject/eject board design rules to/from a KiCad BOARD object."""
+
+    dict_key = "design rules"
+
+    def inject(self, data_dict, brd):
+        """Inject design rule settings from data_dict into a KiCad BOARD object."""
+
+        # Get the design rule settings from the data dict.
+        data_drs = data_dict.get(self.dict_key, {})
+
+        # Get the design rules from the board.
+        brd_drs = brd.GetDesignSettings()
+
+        # Update the design rules with values from the data dict.
+        # If a particular design rule parameter doesn't exist, just pass it by.
+
+        try:
+            brd_drs.m_BlindBuriedViaAllowed = data_drs[
+                "blind/buried via allowed"]
+        except KeyError:
+            pass
+
+        try:
+            brd_drs.m_MicroViasAllowed = data_drs["uvia allowed"]
+        except KeyError:
+            pass
+
+        try:
+            brd_drs.m_RequireCourtyards = data_drs["require courtyards"]
+        except KeyError:
+            pass
+
+        try:
+            brd_drs.m_ProhibitOverlappingCourtyards = data_drs[
+                "prohibit courtyard overlap"]
+        except KeyError:
+            pass
+
+        try:
+            brd_drs.m_TrackMinWidth = data_drs["min track width"]
+        except KeyError:
+            pass
+
+        try:
+            brd_drs.m_ViasMinSize = data_drs["min via diameter"]
+        except KeyError:
+            pass
+
+        try:
+            brd_drs.m_ViasMinDrill = data_drs["min via drill size"]
+        except KeyError:
+            pass
+            pass
+
+        try:
+            brd_drs.m_MicroViasMinSize = data_drs["min uvia diameter"]
+        except KeyError:
+            pass
+
+        try:
+            brd_drs.m_MicroViasMinDrill = data_drs["min uvia drill size"]
+        except KeyError:
+            pass
+
+        try:
+            brd_drs.SetMinHoleSeparation(data_drs["hole to hole spacing"])
+        except KeyError:
+            pass
+
+        # Load the updated design rules back into the board.
+        brd.SetDesignSettings(brd_drs)
+        Refresh()  # Refresh the board with the new data.
+
+    def eject(self, brd):
+        """Return a dict of design rule settings from a KiCad BOARD object."""
+
+        # Get the design rules from the board.
+        brd_drs = brd.GetDesignSettings()
+
+        data_drs = {
+            "blind/buried via allowed": brd_drs.m_BlindBuriedViaAllowed,
+            "uvia allowed": brd_drs.m_MicroViasAllowed,
+            "require courtyards": brd_drs.m_RequireCourtyards,
+            "prohibit courtyard overlap":
+            brd_drs.m_ProhibitOverlappingCourtyards,
+            "min track width": brd_drs.m_TrackMinWidth,
+            "min via diameter": brd_drs.m_ViasMinSize,
+            "min via drill size": brd_drs.m_ViasMinDrill,
+            "min uvia diameter": brd_drs.m_MicroViasMinSize,
+            "min uvia drill size": brd_drs.m_MicroViasMinDrill,
+            "hole to hole spacing": brd_drs.m_HoleToHoleMin,
+        }
+
+        return {self.dict_key: data_drs}
+
+
 class NetClassDefs(KinJector):
     """Inject/eject net class definitions to/from a KiCad BOARD object."""
 
-    dict_key = "netclasses"
+    dict_key = "definitions"
 
     # Associate each net class parameter key with methods for getting/setting
     # it in the board's net class structure.
@@ -156,7 +319,7 @@ class NetClassDefs(KinJector):
 class NetClassAssigns(KinJector):
     """Inject/eject net class assignments to/from a KiCad BOARD object."""
 
-    dict_key = "netclass assignments"
+    dict_key = "assignments"
 
     def inject(self, data_dict, brd):
         """Inject net class assignments from data_dict into a KiCad BOARD object."""
@@ -210,115 +373,35 @@ class NetClassAssigns(KinJector):
         return {self.dict_key: netclass_assignment_dict}
 
 
-class ModulePosition(KinJector):
-    """Inject/eject part (X,Y), rotation, front/back to/from a KiCad MODULE object."""
+class NetClasses(KinJector):
+    """Inject/eject net class defs and assignments to/from a KiCad BOARD object."""
 
-    dict_key = "position"
-
-    # Index top and bottom of boards by their layer number in PCBNEW.
-    top_btm = {F_Cu: "top", B_Cu: "bottom"}
-
-    def inject(self, data_dict, module):
-        """Inject part position from data_dict into a KiCad MODULE object."""
-
-        try:
-            pos_data = data_dict[self.dict_key]
-        except KeyError:
-            return  # No position data to inject into MODULE object.
-
-        # Set the (X,Y) position.
-        try:
-            module.SetPosition(wxPoint(pos_data["x"], pos_data["y"]))
-        except IndexError:
-            pass  # No (X,Y) data, so skip it.
-
-        # Set the orientation (in degrees).
-        try:
-            module.SetOrientationDegrees(pos_data["angle"])
-        except IndexError:
-            pass  # No angle data, so skip it.
-
-        # Set whether the board is on the top or bottom side of the PCB.
-        module_side = self.top_btm[module.GetLayer()]
-        try:
-            if module_side != pos_data["side"].lower():
-                module.Flip(module.GetPosition())
-        except IndexError:
-            pass  # No top-side/bottom-side data, so skip it.
-
-    def eject(self, module):
-        """Return a dict with the part position from a KiCad MODULE object."""
-
-        pos = module.GetPosition()
-        return {
-            self.dict_key: {
-                "x": pos.x,
-                "y": pos.y,
-                "angle": module.GetOrientationDegrees(),
-                "side": self.top_btm[module.GetLayer()],
-            }
-        }
-
-
-class Module(KinJector):
-    """Inject/eject part data to/from a KiCad MODULE object."""
-
-    def inject(self, data_dict, module):
-        """Inject part data from data_dict into a KiCad MODULE object."""
-
-        ModulePosition().inject(data_dict, module)
-
-    def eject(self, module):
-        """Return a dict of part data from a KiCad MODULE object."""
-
-        data_dict = {}
-        data_dict.update(ModulePosition().eject(module))
-        return data_dict
-
-
-class ModulesByRef(KinJector):
-    """Inject/eject data to/from parts in a KiCad BOARD object by part reference."""
-
-    dict_key = "modules"
-
-    @staticmethod
-    def get_id(module):
-        return str(module.GetReference())
+    dict_key = "net classes"
 
     def inject(self, data_dict, brd):
-        """Inject data from data_dict into parts of a KiCad BOARD object."""
+        """Inject net class defs and assignments from data_dict into a KiCad BOARD object."""
 
-        # Get the module data from the data dict.
-        data_modules = data_dict.get(self.dict_key, {})
+        # Get the net classes from the data dict.
+        data_drs = data_dict.get(self.dict_key, {})
 
-        # Get all the parts in the board indexed by references.
-        brd_modules = {self.get_id(m): m for m in brd.GetModules()}
+        # Load the net class definitions into the board.
+        NetClassDefs().inject(data_drs, brd)
 
-        # Assign the data in the data_dict to the parts on the board.
-        for data_module_ref, data_module_data in data_modules.items():
-
-            # Check to see if the part from the data dict exists on the board.
-            try:
-                brd_module = brd_modules[data_module_ref]
-            except KeyError:
-                continue  # Should we signal an error for a missing part?
-
-            # Inject the data into the part.
-            Module().inject(data_module_data, brd_module)
+        # Load the net/net class assignments into the board.
+        NetClassAssigns().inject(data_drs, brd)
 
     def eject(self, brd):
-        """Return part data from parts as a dict in a KiCad BOARD object."""
+        """Return a dict of net class defs and assignments from a KiCad BOARD object."""
 
-        # Get all the parts in the board indexed by references.
-        brd_parts = {self.get_id(m): m for m in brd.GetModules()}
+        data_drs = {}
 
-        # Get data from each part and store it in dict using part ref as key.
-        part_data_dict = {
-            part_ref: Module().eject(part)
-            for (part_ref, part) in brd_parts.items()
-        }
+        # Update the data dict with the net class definitions.
+        data_drs.update(NetClassDefs().eject(brd))
 
-        return {self.dict_key: part_data_dict}
+        # Update the data dict with the net/net class assignments.
+        data_drs.update(NetClassAssigns().eject(brd))
+
+        return {self.dict_key: data_drs}
 
 
 class TrackWidths(KinJector):
@@ -443,13 +526,50 @@ class DiffPairDimensions(KinJector):
         }
 
 
-class Layers(KinJector):
-    """Inject/eject enabled/visible layers to/from a KiCad board object."""
+class TracksViasDPs(KinJector):
+    """Inject/eject tracks, vias, and differential pairs to/from a KiCad BOARD object."""
 
-    dict_key = "layers"
+    dict_key = "tracks, vias, diff pairs"
 
     def inject(self, data_dict, brd):
-        """Inject enabled/visible layers from data_dict into a KiCad BOARD object."""
+        """Inject tracks, vias, and differential pairs from data_dict into a KiCad BOARD object."""
+
+        # Get the track/via/DP info from the data dict.
+        data_drs = data_dict.get(self.dict_key, {})
+
+        # Load the track widths back into the board.
+        TrackWidths().inject(data_drs, brd)
+
+        # Load the via dimensions back into the board.
+        ViaDimensions().inject(data_drs, brd)
+
+        # Load the diff pair dimensions back into the board.
+        DiffPairDimensions().inject(data_drs, brd)
+
+    def eject(self, brd):
+        """Return a dict of tracks, vias, and differential pairs from a KiCad BOARD object."""
+
+        data_drs = {}
+
+        # Update data dict with the board track widths.
+        data_drs.update(TrackWidths().eject(brd))
+
+        # Update data dict with the board via dimensions.
+        data_drs.update(ViaDimensions().eject(brd))
+
+        # Update data dict with the board differential pair dimensions.
+        data_drs.update(DiffPairDimensions().eject(brd))
+
+        return {self.dict_key: data_drs}
+
+
+class SolderMaskPaste(KinJector):
+    """Inject/eject solder mask/paster settings to/from a KiCad BOARD object."""
+
+    dict_key = "solder mask/paste"
+
+    def inject(self, data_dict, brd):
+        """Inject solder mask/paste settings from data_dict into a KiCad BOARD object."""
 
         # Get the design rule settings from the data dict.
         data_drs = data_dict.get(self.dict_key, {})
@@ -457,44 +577,97 @@ class Layers(KinJector):
         # Get the design rules from the board.
         brd_drs = brd.GetDesignSettings()
 
+        # Update the design rules with values from the data dict.
+        # If a particular design rule parameter doesn't exist, just pass it by.
+
         try:
-            # Create an LSET where the bit is set for each enabled layer.
-            lset = LSET()
-            for l in data_drs["enabled"]:
-                lset.AddLayer(l)
-            # Enable the specified layers while disabling the rest.
-            brd_drs.SetEnabledLayers(lset)
-            brd.SetEnabledLayers(lset)
+            brd_drs.m_SolderMaskMargin = data_drs["solder mask clearance"]
         except KeyError:
             pass
 
         try:
-            # Create an LSET where the bit is set for each visible layer.
-            lset = LSET()
-            for l in data_drs["visible"]:
-                lset.AddLayer(l)
-            # Make the specified layers visible while hiiding the rest.
-            brd_drs.SetVisibleLayers(lset)
-            brd.SetVisibleLayers(lset)
+            brd_drs.m_SolderMaskMinWidth = data_drs["solder mask min width"]
         except KeyError:
             pass
 
-        # Load the updated diff pair dimensions back into the board.
+        try:
+            brd_drs.m_SolderPasteMargin = data_drs["solder paste clearance"]
+        except KeyError:
+            pass
+
+        try:
+            brd_drs.m_SolderPasteMarginRatio = data_drs[
+                "solder paste clearance ratio"]
+        except KeyError:
+            pass
+
+        # Load the updated solder paste/mask settings back into the board.
         brd.SetDesignSettings(brd_drs)
         Refresh()  # Refresh the board with the new data.
 
     def eject(self, brd):
-        """Return enabled/visible layers as a dict from a KiCad BOARD object."""
+        """Return a dict of solder mask/paste settings from a KiCad BOARD object."""
 
         # Get the design rules from the board.
         brd_drs = brd.GetDesignSettings()
 
-        return {
-            self.dict_key: {
-                "enabled": [l for l in brd_drs.GetEnabledLayers().Seq()],
-                "visible": [l for l in brd_drs.GetVisibleLayers().Seq()],
-            }
+        data_drs = {
+            "solder mask clearance": brd_drs.m_SolderMaskMargin,
+            "solder mask min width": brd_drs.m_SolderMaskMinWidth,
+            "solder paste clearance": brd_drs.m_SolderPasteMargin,
+            "solder paste clearance ratio": brd_drs.m_SolderPasteMarginRatio,
         }
+
+        return {self.dict_key: data_drs}
+
+
+class BoardSetup(KinJector):
+    """Inject/eject board setup to/from a KiCad BOARD object."""
+
+    dict_key = "board setup"
+
+    def inject(self, data_dict, brd):
+        """Inject board data from data_dict into a KiCad BOARD object."""
+
+        # Get the design rule settings from the data dict.
+        data_setup = data_dict.get(self.dict_key, {})
+
+        # Load the enabled/visible layers into the board.
+        Layers().inject(data_setup, brd)
+
+        # Load the design rules into the board.
+        DesignRules().inject(data_setup, brd)
+
+        # Load the net class defs and assignments into the board.
+        NetClasses().inject(data_setup, brd)
+
+        # Load the track/via/differential pair dimensions back into the board.
+        TracksViasDPs().inject(data_setup, brd)
+
+        # Load the solder paste/mask dimensions back into the board.
+        SolderMaskPaste().inject(data_setup, brd)
+
+    def eject(self, brd):
+        """Return a dict of board setup from a KiCad BOARD object."""
+
+        data_setup = {}
+
+        # Update the data dict with the enabled/visible layers.
+        data_setup.update(Layers().eject(brd))
+
+        # Update the data dict with the design rules.
+        data_setup.update(DesignRules().eject(brd))
+
+        # Update the data dict with the net class defs and assignments.
+        data_setup.update(NetClasses().eject(brd))
+
+        # Update the data dict with the track/via/differential pair dimensions.
+        data_setup.update(TracksViasDPs().eject(brd))
+
+        # Update data dict with the solder paste/mask dimensions.
+        data_setup.update(SolderMaskPaste().eject(brd))
+
+        return {self.dict_key: data_setup}
 
 
 class Plot(KinJector):
@@ -634,185 +807,115 @@ class Plot(KinJector):
         return {self.dict_key: plot_settings_dict}
 
 
-class DesignRules(KinJector):
-    """Inject/eject board design rules to/from a KiCad BOARD object."""
+class ModulePosition(KinJector):
+    """Inject/eject part (X,Y), rotation, front/back to/from a KiCad MODULE object."""
 
-    dict_key = "settings"
+    dict_key = "position"
 
-    def inject(self, data_dict, brd):
-        """Inject design rule settings from data_dict into a KiCad BOARD object."""
+    # Index top and bottom of boards by their layer number in PCBNEW.
+    top_btm = {F_Cu: "top", B_Cu: "bottom"}
 
-        # Get the design rule settings from the data dict.
-        data_drs = data_dict.get(self.dict_key, {})
-
-        # Get the design rules from the board.
-        brd_drs = brd.GetDesignSettings()
-
-        # Update the design rules with values from the data dict.
-        # If a particular design rule parameter doesn't exist, just pass it by.
+    def inject(self, data_dict, module):
+        """Inject part position from data_dict into a KiCad MODULE object."""
 
         try:
-            brd_drs.SetBoardThickness(data_drs["board thickness"])
+            pos_data = data_dict[self.dict_key]
         except KeyError:
-            pass
+            return  # No position data to inject into MODULE object.
 
+        # Set the (X,Y) position.
         try:
-            brd_drs.SetCopperLayerCount(data_drs["# copper layers"])
-        except KeyError:
-            pass
+            module.SetPosition(wxPoint(pos_data["x"], pos_data["y"]))
+        except IndexError:
+            pass  # No (X,Y) data, so skip it.
 
+        # Set the orientation (in degrees).
         try:
-            brd_drs.SetMinHoleSeparation(data_drs["hole to hole spacing"])
-        except KeyError:
-            pass
+            module.SetOrientationDegrees(pos_data["angle"])
+        except IndexError:
+            pass  # No angle data, so skip it.
 
+        # Set whether the board is on the top or bottom side of the PCB.
+        module_side = self.top_btm[module.GetLayer()]
         try:
-            brd_drs.m_ProhibitOverlappingCourtyards = data_drs[
-                "prohibit courtyard overlap"]
-        except KeyError:
-            pass
+            if module_side != pos_data["side"].lower():
+                module.Flip(module.GetPosition())
+        except IndexError:
+            pass  # No top-side/bottom-side data, so skip it.
 
-        try:
-            brd_drs.m_RequireCourtyards = data_drs["require courtyards"]
-        except KeyError:
-            pass
+    def eject(self, module):
+        """Return a dict with the part position from a KiCad MODULE object."""
 
-        try:
-            brd_drs.m_BlindBuriedViaAllowed = data_drs[
-                "blind/buried via allowed"]
-        except KeyError:
-            pass
-
-        try:
-            brd_drs.m_MicroViasAllowed = data_drs["uvia allowed"]
-        except KeyError:
-            pass
-
-        try:
-            brd_drs.m_MicroViasMinDrill = data_drs["uvia min drill size"]
-        except KeyError:
-            pass
-
-        try:
-            brd_drs.m_MicroViasMinSize = data_drs["uvia min diameter"]
-        except KeyError:
-            pass
-
-        try:
-            brd_drs.m_ViasMinDrill = data_drs["via min drill size"]
-        except KeyError:
-            pass
-
-        try:
-            brd_drs.m_ViasMinSize = data_drs["via min diameter"]
-        except KeyError:
-            pass
-
-        try:
-            brd_drs.m_TrackMinWidth = data_drs["track min width"]
-        except KeyError:
-            pass
-
-        try:
-            brd_drs.m_SolderMaskMargin = data_drs["solder mask margin"]
-        except KeyError:
-            pass
-
-        try:
-            brd_drs.m_SolderMaskMinWidth = data_drs["solder mask min width"]
-        except KeyError:
-            pass
-
-        try:
-            brd_drs.m_SolderPasteMargin = data_drs["solder paste margin"]
-        except KeyError:
-            pass
-
-        try:
-            brd_drs.m_SolderPasteMarginRatio = data_drs[
-                "solder paste margin ratio"]
-        except KeyError:
-            pass
-
-        # Load the updated design rules back into the board.
-        brd.SetDesignSettings(brd_drs)
-        Refresh()  # Refresh the board with the new data.
-
-        # The following items are part of the design rules but they have their
-        # own classes for injecting their data into a board.
-
-        # Load the track widths back into the board.
-        TrackWidths().inject(data_drs, brd)
-
-        # Load the via dimensions back into the board.
-        ViaDimensions().inject(data_drs, brd)
-
-        # Load the diff pair dimensions back into the board.
-        DiffPairDimensions().inject(data_drs, brd)
-
-        # Load the net class definitions into the board.
-        NetClassDefs().inject(data_drs, brd)
-
-        # Load the net/net class assignments into the board.
-        NetClassAssigns().inject(data_drs, brd)
-
-        # Load the enabled/visible layers into the board.
-        Layers().inject(data_drs, brd)
-
-        # Load the plot settings into the board.
-        Plot().inject(data_drs, brd)
-
-    def eject(self, brd):
-        """Return a dict of design rule settings from a KiCad BOARD object."""
-
-        # Get the design rules from the board.
-        brd_drs = brd.GetDesignSettings()
-
-        data_drs = {
-            "board thickness": brd_drs.GetBoardThickness(),
-            "# copper layers": brd_drs.GetCopperLayerCount(),
-            "hole to hole spacing": brd_drs.m_HoleToHoleMin,
-            "prohibit courtyard overlap":
-            brd_drs.m_ProhibitOverlappingCourtyards,
-            "require courtyards": brd_drs.m_RequireCourtyards,
-            "blind/buried via allowed": brd_drs.m_BlindBuriedViaAllowed,
-            "uvia allowed": brd_drs.m_MicroViasAllowed,
-            "uvia min drill size": brd_drs.m_MicroViasMinDrill,
-            "uvia min diameter": brd_drs.m_MicroViasMinSize,
-            "via min drill size": brd_drs.m_ViasMinDrill,
-            "via min diameter": brd_drs.m_ViasMinSize,
-            "track min width": brd_drs.m_TrackMinWidth,
-            "solder mask margin": brd_drs.m_SolderMaskMargin,
-            "solder mask min width": brd_drs.m_SolderMaskMinWidth,
-            "solder paste margin": brd_drs.m_SolderPasteMargin,
-            "solder paste margin ratio": brd_drs.m_SolderPasteMarginRatio,
+        pos = module.GetPosition()
+        return {
+            self.dict_key: {
+                "x": pos.x,
+                "y": pos.y,
+                "angle": module.GetOrientationDegrees(),
+                "side": self.top_btm[module.GetLayer()],
+            }
         }
 
-        # The following items are part of the design rules but they have their
-        # own classes for ejecting their data from a board.
 
-        # Update data dict with the board track widths.
-        data_drs.update(TrackWidths().eject(brd))
+class Module(KinJector):
+    """Inject/eject part data to/from a KiCad MODULE object."""
 
-        # Update data dict with the board via dimensions.
-        data_drs.update(ViaDimensions().eject(brd))
+    def inject(self, data_dict, module):
+        """Inject part data from data_dict into a KiCad MODULE object."""
 
-        # Update data dict with the board differential pair dimensions.
-        data_drs.update(DiffPairDimensions().eject(brd))
+        ModulePosition().inject(data_dict, module)
 
-        # Update the data dict with the net class definitions.
-        data_drs.update(NetClassDefs().eject(brd))
+    def eject(self, module):
+        """Return a dict of part data from a KiCad MODULE object."""
 
-        # Update the data dict with the net/net class assignments.
-        data_drs.update(NetClassAssigns().eject(brd))
+        data_dict = {}
+        data_dict.update(ModulePosition().eject(module))
+        return data_dict
 
-        # Update the data dict with the enabled/visible layers.
-        data_drs.update(Layers().eject(brd))
 
-        # Update the data dict with the plot settings.
-        data_drs.update(Plot().eject(brd))
+class ModulesByRef(KinJector):
+    """Inject/eject data to/from parts in a KiCad BOARD object by part reference."""
 
-        return {self.dict_key: data_drs}
+    dict_key = "modules"
+
+    @staticmethod
+    def get_id(module):
+        return str(module.GetReference())
+
+    def inject(self, data_dict, brd):
+        """Inject data from data_dict into parts of a KiCad BOARD object."""
+
+        # Get the module data from the data dict.
+        data_modules = data_dict.get(self.dict_key, {})
+
+        # Get all the parts in the board indexed by references.
+        brd_modules = {self.get_id(m): m for m in brd.GetModules()}
+
+        # Assign the data in the data_dict to the parts on the board.
+        for data_module_ref, data_module_data in data_modules.items():
+
+            # Check to see if the part from the data dict exists on the board.
+            try:
+                brd_module = brd_modules[data_module_ref]
+            except KeyError:
+                continue  # Should we signal an error for a missing part?
+
+            # Inject the data into the part.
+            Module().inject(data_module_data, brd_module)
+
+    def eject(self, brd):
+        """Return part data from parts as a dict in a KiCad BOARD object."""
+
+        # Get all the parts in the board indexed by references.
+        brd_parts = {self.get_id(m): m for m in brd.GetModules()}
+
+        # Get data from each part and store it in dict using part ref as key.
+        part_data_dict = {
+            part_ref: Module().eject(part)
+            for (part_ref, part) in brd_parts.items()
+        }
+
+        return {self.dict_key: part_data_dict}
 
 
 class Board(KinJector):
@@ -827,7 +930,10 @@ class Board(KinJector):
         brd_data = data_dict.get(self.dict_key, {})
 
         # Load the design rules into the board.
-        DesignRules().inject(brd_data, brd)
+        BoardSetup().inject(brd_data, brd)
+
+        # Load the plot settings into the board.
+        Plot().inject(brd_data, brd)
 
         # Load the module positions into the board.
         ModulesByRef().inject(brd_data, brd)
@@ -836,6 +942,7 @@ class Board(KinJector):
         """Return a dict of board data from a KiCad BOARD object."""
 
         brd_data = {}
-        brd_data.update(DesignRules().eject(brd))
+        brd_data.update(BoardSetup().eject(brd))
+        brd_data.update(Plot().eject(brd))
         brd_data.update(ModulesByRef().eject(brd))
         return {self.dict_key: brd_data}

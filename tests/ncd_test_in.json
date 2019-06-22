@@ -1,26 +1,26 @@
 {
-    "netclasses": {
+    "net class definitions": {
         "Default": {
-            "description": "default net class def", 
-            "diff pair width": 200001, 
-            "via drill": 400001, 
-            "track width": 250001, 
-            "uvia drill": 100001, 
-            "diff pair gap": 250001, 
-            "clearance": 200001, 
-            "uvia diameter": 300001, 
-            "via diameter": 800001
+            "description": "", 
+            "diff pair width": 400000, 
+            "via drill": 800000, 
+            "track width": 350000, 
+            "uvia drill": 300000, 
+            "diff pair gap": 450000, 
+            "clearance": 600000, 
+            "uvia diameter": 800000, 
+            "via diameter": 900000
         }, 
         "new_new_class": {
-            "description": "new net class def", 
-            "diff pair width": 200002, 
-            "via drill": 400002, 
-            "track width": 250002, 
-            "uvia drill": 100002, 
-            "diff pair gap": 250002, 
-            "clearance": 200002, 
-            "uvia diameter": 300002, 
-            "via diameter": 800002
+            "description": "", 
+            "diff pair width": 150000, 
+            "via drill": 455000, 
+            "track width": 225000, 
+            "uvia drill": 110000, 
+            "diff pair gap": 255000, 
+            "clearance": 220000, 
+            "uvia diameter": 330000, 
+            "via diameter": 880000
         }
-    }
+    } 
 }

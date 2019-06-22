@@ -3,6 +3,12 @@ History
 =======
 
 
+0.0.5 (2019-06-19)
+------------------
+
+* Rearranged hierarchy of board data to more closely reflect KiCad board setup dialog.
+
+
 0.0.4 (2019-06-10)
 ------------------
 

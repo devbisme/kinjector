@@ -36,87 +36,162 @@ from an existing board and look at the resulting JSON/YAML file as follows:
 .. code-block:: yaml
 
     board:
+      board setup:
+        design rules:
+          blind/buried via allowed: true
+          hole to hole spacing: 678976266
+          min track width: 320000
+          min uvia diameter: 470000
+          min uvia drill size: 120000
+          min via diameter: 120000
+          min via drill size: 110000
+          prohibit courtyard overlap: false
+          require courtyards: false
+          uvia allowed: true
+        layers:
+          '# copper layers': 4
+          board thickness: 3200000
+          enabled:
+          - 0
+          - 1
+          - 2
+          - 31
+          - 32
+          - 33
+          - 34
+          - 35
+          - 36
+          - 37
+          - 38
+          - 39
+          - 49
+          visible:
+          - 0
+          - 31
+          - 32
+          - 33
+          - 34
+          - 35
+          - 36
+          - 37
+          - 38
+          - 39
+          - 49
+        net classes:
+          net class assignments:
+            ? ''
+            : Default
+            Net-(D1-Pad1): new_new_class
+            Net-(D1-Pad2): Default
+            Net-(R1-Pad2): Default
+            Net-(R2-Pad1): new_new_class
+          net class definitions:
+            Default:
+              clearance: 600000
+              description: ''
+              diff pair gap: 450000
+              diff pair width: 400000
+              track width: 350000
+              uvia diameter: 800000
+              uvia drill: 300000
+              via diameter: 900000
+              via drill: 800000
+            new_new_class:
+              clearance: 220000
+              description: ''
+              diff pair gap: 255000
+              diff pair width: 150000
+              track width: 225000
+              uvia diameter: 330000
+              uvia drill: 110000
+              via diameter: 880000
+              via drill: 455000
+        solder mask/paste:
+          solder mask clearance: 34000
+          solder mask min width: 570000
+          solder paste clearance: 1
+          solder paste clearance ratio: -0.2
+        tracks, vias, diff pairs:
+          diff pair dimensions list: []
+          track width list:
+          - 1990000
+          - 456000
+          via dimensions list:
+          - diameter: 480000
+            drill: 841000
       modules:
         D1:
           position:
-            angle: 304.0
-            side: top
-            x: 161417004
-            y: 99187004
+            angle: -120.0
+            side: bottom
+            x: 172517000
+            y: 90297000
         R1:
           position:
-            angle: 122.0
+            angle: -30.0
             side: top
-            x: 161417002
-            y: 102137002
+            x: 161528000
+            y: 102248000
         R2:
           position:
-            angle: 147.0
-            side: bottom
-            x: 166187003
-            y: 99187003
+            angle: 120.0
+            side: top
+            x: 166187222
+            y: 99187111
         R3:
           position:
-            angle: 329.0
+            angle: 30.0
             side: bottom
-            x: 166187001
-            y: 102137001
-      settings:
-        '# copper layers': 4
-        blind/buried via allowed: true
-        board thickness: 1600001
-        diff pair dimensions list: []
-        hole to hole spacing: 0
-        netclass assignments:
-          ? ''
-          : Default
-          Net-(D1-Pad1): new_new_class
-          Net-(D1-Pad2): Default
-          Net-(R1-Pad2): Default
-          Net-(R2-Pad1): new_new_class
-        netclasses:
-          Default:
-            clearance: 200001
-            description: ''
-            diff pair gap: 250001
-            diff pair width: 200001
-            track width: 250001
-            uvia diameter: 300001
-            uvia drill: 100001
-            via diameter: 800001
-            via drill: 400001
-          new_new_class:
-            clearance: 400001
-            description: ''
-            diff pair gap: 500001
-            diff pair width: 400001
-            track width: 500001
-            uvia diameter: 600001
-            uvia drill: 200001
-            via diameter: 1600001
-            via drill: 800001
-        prohibit courtyard overlap: false
-        require courtyards: false
-        solder mask margin: 51001
-        solder mask min width: 500001
-        solder paste margin: 1
-        solder paste margin ratio: 0.1
-        track min width: 200001
-        track width list:
-        - 250000
-        - 250001
-        - 1000001
-        - 650001
-        uvia allowed: true
-        uvia min diameter: 200001
-        uvia min drill size: 100001
-        via dimensions list:
-        - diameter: 800000
-          drill: 400000
-        - diameter: 800001
-          drill: 400001
-        via min diameter: 200001
-        via min drill size: 300001
+            x: 277187000
+            y: 203137000
+      plot:
+        autoscale: true
+        color: null
+        coordinate format: 4
+        default line width: 150000
+        do not tent vias: true
+        drill marks: 2
+        exclude pcb edge: false
+        force a4 output: true
+        format: 2
+        generate gerber job file: true
+        hpgl pen num: 2
+        hpgl pen size: 16.0
+        hpgl pen speed: 30
+        include netlist attributes: true
+        layers:
+        - 0
+        - 1
+        - 2
+        - 31
+        - 34
+        - 35
+        - 36
+        - 37
+        - 38
+        - 39
+        - 44
+        mirrored plot: true
+        negative plot: true
+        output directory: ''
+        plot border: true
+        plot footprint refs: false
+        plot footprint values: false
+        plot in outline mode: false
+        plot invisible text: true
+        plot mode: 1
+        plot pads on silk: true
+        scale: 2.0
+        scaling: 3
+        skip npth pads: true
+        subtract soldermask from silk: true
+        text mode: 2
+        track width correction: 1
+        use aux axis as origin: true
+        use protel filename extensions: true
+        use x2 format: true
+        x scale factor: 2.0
+        y scale factor: 1.2
 
 You don't need to specify every field in order to inject data into a board:
 only the fields you want to change are needed.
@@ -126,8 +201,9 @@ For example, this YAML file will change the minimum track width to
 .. code-block:: yaml
 
     board:
-      settings:
-        track min width: 300000
+      board setup:
+        design rules:
+          min track width: 320000
 
 
 As a Package
