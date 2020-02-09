@@ -133,6 +133,7 @@ def main():
 
             # The file exists and could be opened, now find out what type it is.
             try:
+                fp.seek(0)
                 file_dict = json.load(fp) # Causes exception if not JSON.
                 fp.close()
                 # Overwrite the JSON file.
@@ -140,6 +141,7 @@ def main():
                     json.dump(injection_dict, fp, indent=4)
             except Exception:
                 try:
+                    fp.seek(0)
                     file_dict = yaml.load(fp, Loader=yaml.Loader) # Exception if not YAML.
                     fp.close()
                     # Overwrite the YAML file.
