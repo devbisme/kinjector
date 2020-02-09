@@ -52,7 +52,7 @@ def merge_dicts(dct, merge_dct):
         Nothing.
     """
 
-    for k, v in merge_dct.items():
+    for k, v in list(merge_dct.items()):
         if (k in dct and isinstance(dct[k], dict)
                 and isinstance(merge_dct[k], collections.Mapping)):
             merge_dicts(dct[k], merge_dct[k])
@@ -271,8 +271,8 @@ class NetClassDefs(KinJector):
 
         # Update existing net classes in the board with new values from data
         # or create new net classes.
-        for data_netclass_name, data_netclass_params in data_netclass_defs.items(
-        ):
+        for data_netclass_name, data_netclass_params in list(data_netclass_defs.items(
+        )):
 
             # Skip updates to the Default class. That's handled below.
             if data_netclass_name == "Default":
@@ -286,7 +286,7 @@ class NetClassDefs(KinJector):
             brd_netclass_params = brd_netclasses[data_netclass_name]
 
             # Update the board's net class parameters with the values from the data dict.
-            for key, value in data_netclass_params.items():
+            for key, value in list(data_netclass_params.items()):
                 self.key_method_map[key.lower()].set(brd_netclass_params,
                                                      value)
 
@@ -299,7 +299,7 @@ class NetClassDefs(KinJector):
         else:
             # Update the Default net class from the data dict.
             brd_dflt_params = brd.GetNetClasses().GetDefault()
-            for key, value in data_dflt_params.items():
+            for key, value in list(data_dflt_params.items()):
                 self.key_method_map[key.lower()].set(brd_dflt_params, value)
 
     def eject(self, brd):
@@ -307,10 +307,10 @@ class NetClassDefs(KinJector):
 
         # Extract the parameters for each net class in the board.
         netclass_dict = {}
-        for netclass_name, netclass_params in brd.GetAllNetClasses().items():
+        for netclass_name, netclass_params in list(brd.GetAllNetClasses().items()):
             netclass_dict[str(netclass_name)] = {
                 key: method.get(netclass_params)
-                for (key, method) in self.key_method_map.items()
+                for (key, method) in list(self.key_method_map.items())
             }
 
         return {self.dict_key: netclass_dict}
@@ -335,8 +335,8 @@ class NetClassAssigns(KinJector):
         brd_dflt = brd.GetNetClasses().GetDefault()
 
         # Assign the nets in data dict to the appropriate netclasses in the board.
-        for data_net_name, data_net_class_name in data_netclass_assigns.items(
-        ):
+        for data_net_name, data_net_class_name in list(data_netclass_assigns.items(
+        )):
             # Check to see if the net from the data dict exists in the board.
             try:
                 brd_net = brd_nets[data_net_name]
@@ -367,7 +367,7 @@ class NetClassAssigns(KinJector):
         # Extract the netclass assigned to each net in the board.
         netclass_assignment_dict = {
             str(net_name): net.GetClassName()
-            for (net_name, net) in brd.GetNetInfo().NetsByName().items()
+            for (net_name, net) in list(brd.GetNetInfo().NetsByName().items())
         }
 
         return {self.dict_key: netclass_assignment_dict}
@@ -771,7 +771,7 @@ class Plot(KinJector):
         brd_plot_settings = brd.GetPlotOptions()
 
         # Update existing plot settings in the board with new values from data.
-        for key, value in data_plot_settings.items():
+        for key, value in list(data_plot_settings.items()):
             self.key_method_map[key.lower()].set(brd_plot_settings, value)
 
         # Enable specified layers for plotting.
@@ -797,7 +797,7 @@ class Plot(KinJector):
         brd_plot_settings = brd.GetPlotOptions()
         plot_settings_dict = {
             key: method.get(brd_plot_settings)
-            for (key, method) in self.key_method_map.items()
+            for (key, method) in list(self.key_method_map.items())
         }
 
         # Extract the enabled plotting layers.
@@ -892,7 +892,7 @@ class ModulesByRef(KinJector):
         brd_modules = {self.get_id(m): m for m in brd.GetModules()}
 
         # Assign the data in the data_dict to the parts on the board.
-        for data_module_ref, data_module_data in data_modules.items():
+        for data_module_ref, data_module_data in list(data_modules.items()):
 
             # Check to see if the part from the data dict exists on the board.
             try:
@@ -912,7 +912,7 @@ class ModulesByRef(KinJector):
         # Get data from each part and store it in dict using part ref as key.
         part_data_dict = {
             part_ref: Module().eject(part)
-            for (part_ref, part) in brd_parts.items()
+            for (part_ref, part) in list(brd_parts.items())
         }
 
         return {self.dict_key: part_data_dict}

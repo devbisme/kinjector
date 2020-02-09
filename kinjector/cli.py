@@ -76,7 +76,7 @@ def main():
         sys.exit(2)
 
     if args.to is None:
-        print 'Hey! I need some files where I can insert values!'
+        print('Hey! I need some files where I can insert values!')
         sys.exit(1)
 
     for file in args.to:
@@ -121,7 +121,7 @@ def main():
                     file_dict = Board().eject(brd)
                 except Exception as e:
                     # OK, it's none of those things.
-                    print "Hey! I can't handle this input file:", file
+                    print("Hey! I can't handle this input file:", file)
                     raise e
         merge_dicts(injection_dict, file_dict)
         fp.close()
