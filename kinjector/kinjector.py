@@ -52,9 +52,12 @@ def merge_dicts(dct, merge_dct):
         Nothing.
     """
 
-    for k, v in list(merge_dct.items()):
-        if (k in dct and isinstance(dct[k], dict)
-                and isinstance(merge_dct[k], collections.Mapping)):
+    for k, v in merge_dct.items():
+        if (
+            k in dct
+            and isinstance(dct[k], dict)
+            and isinstance(merge_dct[k], collections.Mapping)
+        ):
             merge_dicts(dct[k], merge_dct[k])
         else:
             dct[k] = merge_dct[k]
@@ -151,8 +154,7 @@ class DesignRules(KinJector):
         # If a particular design rule parameter doesn't exist, just pass it by.
 
         try:
-            brd_drs.m_BlindBuriedViaAllowed = data_drs[
-                "blind/buried via allowed"]
+            brd_drs.m_BlindBuriedViaAllowed = data_drs["blind/buried via allowed"]
         except KeyError:
             pass
 
@@ -168,7 +170,8 @@ class DesignRules(KinJector):
 
         try:
             brd_drs.m_ProhibitOverlappingCourtyards = data_drs[
-                "prohibit courtyard overlap"]
+                "prohibit courtyard overlap"
+            ]
         except KeyError:
             pass
 
@@ -217,8 +220,7 @@ class DesignRules(KinJector):
             "blind/buried via allowed": brd_drs.m_BlindBuriedViaAllowed,
             "uvia allowed": brd_drs.m_MicroViasAllowed,
             "require courtyards": brd_drs.m_RequireCourtyards,
-            "prohibit courtyard overlap":
-            brd_drs.m_ProhibitOverlappingCourtyards,
+            "prohibit courtyard overlap": brd_drs.m_ProhibitOverlappingCourtyards,
             "min track width": brd_drs.m_TrackMinWidth,
             "min via diameter": brd_drs.m_ViasMinSize,
             "min via drill size": brd_drs.m_ViasMinDrill,
@@ -238,24 +240,15 @@ class NetClassDefs(KinJector):
     # Associate each net class parameter key with methods for getting/setting
     # it in the board's net class structure.
     key_method_map = {
-        "clearance":
-        KinJector.GetSet(NCP.GetClearance, NCP.SetClearance),
-        "description":
-        KinJector.GetSet(NCP.GetDescription, NCP.SetDescription),
-        "diff pair gap":
-        KinJector.GetSet(NCP.GetDiffPairGap, NCP.SetDiffPairGap),
-        "diff pair width":
-        KinJector.GetSet(NCP.GetDiffPairWidth, NCP.SetDiffPairWidth),
-        "track width":
-        KinJector.GetSet(NCP.GetTrackWidth, NCP.SetTrackWidth),
-        "via diameter":
-        KinJector.GetSet(NCP.GetViaDiameter, NCP.SetViaDiameter),
-        "via drill":
-        KinJector.GetSet(NCP.GetViaDrill, NCP.SetViaDrill),
-        "uvia diameter":
-        KinJector.GetSet(NCP.GetuViaDiameter, NCP.SetuViaDiameter),
-        "uvia drill":
-        KinJector.GetSet(NCP.GetuViaDrill, NCP.SetuViaDrill),
+        "clearance": KinJector.GetSet(NCP.GetClearance, NCP.SetClearance),
+        "description": KinJector.GetSet(NCP.GetDescription, NCP.SetDescription),
+        "diff pair gap": KinJector.GetSet(NCP.GetDiffPairGap, NCP.SetDiffPairGap),
+        "diff pair width": KinJector.GetSet(NCP.GetDiffPairWidth, NCP.SetDiffPairWidth),
+        "track width": KinJector.GetSet(NCP.GetTrackWidth, NCP.SetTrackWidth),
+        "via diameter": KinJector.GetSet(NCP.GetViaDiameter, NCP.SetViaDiameter),
+        "via drill": KinJector.GetSet(NCP.GetViaDrill, NCP.SetViaDrill),
+        "uvia diameter": KinJector.GetSet(NCP.GetuViaDiameter, NCP.SetuViaDiameter),
+        "uvia drill": KinJector.GetSet(NCP.GetuViaDrill, NCP.SetuViaDrill),
     }
 
     def inject(self, data_dict, brd):
@@ -271,8 +264,7 @@ class NetClassDefs(KinJector):
 
         # Update existing net classes in the board with new values from data
         # or create new net classes.
-        for data_netclass_name, data_netclass_params in list(data_netclass_defs.items(
-        )):
+        for data_netclass_name, data_netclass_params in data_netclass_defs.items():
 
             # Skip updates to the Default class. That's handled below.
             if data_netclass_name == "Default":
@@ -286,9 +278,8 @@ class NetClassDefs(KinJector):
             brd_netclass_params = brd_netclasses[data_netclass_name]
 
             # Update the board's net class parameters with the values from the data dict.
-            for key, value in list(data_netclass_params.items()):
-                self.key_method_map[key.lower()].set(brd_netclass_params,
-                                                     value)
+            for key, value in data_netclass_params.items():
+                self.key_method_map[key.lower()].set(brd_netclass_params, value)
 
         # Update the Default net class.
         try:
@@ -299,7 +290,7 @@ class NetClassDefs(KinJector):
         else:
             # Update the Default net class from the data dict.
             brd_dflt_params = brd.GetNetClasses().GetDefault()
-            for key, value in list(data_dflt_params.items()):
+            for key, value in data_dflt_params.items():
                 self.key_method_map[key.lower()].set(brd_dflt_params, value)
 
     def eject(self, brd):
@@ -307,10 +298,10 @@ class NetClassDefs(KinJector):
 
         # Extract the parameters for each net class in the board.
         netclass_dict = {}
-        for netclass_name, netclass_params in list(brd.GetAllNetClasses().items()):
+        for netclass_name, netclass_params in brd.GetAllNetClasses().items():
             netclass_dict[str(netclass_name)] = {
                 key: method.get(netclass_params)
-                for (key, method) in list(self.key_method_map.items())
+                for (key, method) in self.key_method_map.items()
             }
 
         return {self.dict_key: netclass_dict}
@@ -335,8 +326,7 @@ class NetClassAssigns(KinJector):
         brd_dflt = brd.GetNetClasses().GetDefault()
 
         # Assign the nets in data dict to the appropriate netclasses in the board.
-        for data_net_name, data_net_class_name in list(data_netclass_assigns.items(
-        )):
+        for data_net_name, data_net_class_name in data_netclass_assigns.items():
             # Check to see if the net from the data dict exists in the board.
             try:
                 brd_net = brd_nets[data_net_name]
@@ -367,7 +357,7 @@ class NetClassAssigns(KinJector):
         # Extract the netclass assigned to each net in the board.
         netclass_assignment_dict = {
             str(net_name): net.GetClassName()
-            for (net_name, net) in list(brd.GetNetInfo().NetsByName().items())
+            for (net_name, net) in brd.GetNetInfo().NetsByName().items()
         }
 
         return {self.dict_key: netclass_assignment_dict}
@@ -418,8 +408,7 @@ class TrackWidths(KinJector):
         try:
             # The first track width never seems to change, so just inject the
             # list of track widths after that.
-            brd_drs.m_TrackWidthList = intVector([0] +
-                                                 data_dict[self.dict_key])
+            brd_drs.m_TrackWidthList = intVector([0] + data_dict[self.dict_key])
         except KeyError:
             pass
 
@@ -453,10 +442,12 @@ class ViaDimensions(KinJector):
             # The first via dimension never seems to change, so just inject the
             # list of via dimensions after that.
             brd_drs.m_ViasDimensionsList = VIA_DIMENSION_Vector(
-                [VIA_DIMENSION(0, 0)] + [
+                [VIA_DIMENSION(0, 0)]
+                + [
                     VIA_DIMENSION(v["diameter"], v["drill"])
                     for v in data_dict[self.dict_key]
-                ])
+                ]
+            )
         except KeyError:
             pass
 
@@ -473,10 +464,10 @@ class ViaDimensions(KinJector):
         # Return every via dimension except the first one because that's
         # set by the Default net class.
         return {
-            self.dict_key: [{
-                "diameter": v.m_Diameter,
-                "drill": v.m_Drill
-            } for v in brd_drs.m_ViasDimensionsList[1:]]
+            self.dict_key: [
+                {"diameter": v.m_Diameter, "drill": v.m_Drill}
+                for v in brd_drs.m_ViasDimensionsList[1:]
+            ]
         }
 
 
@@ -497,10 +488,12 @@ class DiffPairDimensions(KinJector):
         brd_drs = brd.GetDesignSettings()
 
         try:
-            brd_drs.m_DiffPairDimensionsList = DIFF_PAIR_DIMENSION_Vector([
-                DIFF_PAIR_DIMENSION(dp["width"], dp["gap"], dp["via gap"])
-                for dp in data_dict[self.dict_key]
-            ])
+            brd_drs.m_DiffPairDimensionsList = DIFF_PAIR_DIMENSION_Vector(
+                [
+                    DIFF_PAIR_DIMENSION(dp["width"], dp["gap"], dp["via gap"])
+                    for dp in data_dict[self.dict_key]
+                ]
+            )
         except KeyError:
             pass
 
@@ -518,11 +511,10 @@ class DiffPairDimensions(KinJector):
         brd_drs = brd.GetDesignSettings()
 
         return {
-            self.dict_key: [{
-                "width": dp.m_Width,
-                "gap": dp.m_Gap,
-                "via gap": dp.m_ViaGap
-            } for dp in brd_drs.m_DiffPairDimensionsList]
+            self.dict_key: [
+                {"width": dp.m_Width, "gap": dp.m_Gap, "via gap": dp.m_ViaGap}
+                for dp in brd_drs.m_DiffPairDimensionsList
+            ]
         }
 
 
@@ -596,8 +588,7 @@ class SolderMaskPaste(KinJector):
             pass
 
         try:
-            brd_drs.m_SolderPasteMarginRatio = data_drs[
-                "solder paste clearance ratio"]
+            brd_drs.m_SolderPasteMarginRatio = data_drs["solder paste clearance ratio"]
         except KeyError:
             pass
 
@@ -678,87 +669,83 @@ class Plot(KinJector):
     # Associate each plot parameter key with methods for getting/setting
     # it in the board's plot structure.
     key_method_map = {
-        "force a4 output":
-        KinJector.GetSet(PPP.GetA4Output, PPP.SetA4Output),
-        "autoscale":
-        KinJector.GetSet(PPP.GetAutoScale, PPP.SetAutoScale),
+        "force a4 output": KinJector.GetSet(PPP.GetA4Output, PPP.SetA4Output),
+        "autoscale": KinJector.GetSet(PPP.GetAutoScale, PPP.SetAutoScale),
         # Can't handle COLOR4d and I really don't care.
-        "color":
-        KinJector.GetSet(lambda x: None, lambda x, y: None),
-        "plot in outline mode":
-        KinJector.GetSet(PPP.GetDXFPlotPolygonMode, PPP.SetDXFPlotPolygonMode),
-        "drill marks":
-        KinJector.GetSet(PPP.GetDrillMarksType, PPP.SetDrillMarksType),
-        "x scale factor":
-        KinJector.GetSet(PPP.GetFineScaleAdjustX, PPP.SetFineScaleAdjustX),
-        "y scale factor":
-        KinJector.GetSet(PPP.GetFineScaleAdjustY, PPP.SetFineScaleAdjustY),
-        "hpgl pen size":
-        KinJector.GetSet(PPP.GetHPGLPenDiameter, PPP.SetHPGLPenDiameter),
-        "hpgl pen num":
-        KinJector.GetSet(PPP.GetHPGLPenNum, PPP.SetHPGLPenNum),
-        "hpgl pen speed":
-        KinJector.GetSet(PPP.GetHPGLPenSpeed, PPP.SetHPGLPenSpeed),
-        "mirrored plot":
-        KinJector.GetSet(PPP.GetMirror, PPP.SetMirror),
-        "negative plot":
-        KinJector.GetSet(PPP.GetNegative, PPP.SetNegative),
-        "output directory":
-        KinJector.GetSet(PPP.GetOutputDirectory, PPP.SetOutputDirectory),
-        "plot mode":
-        KinJector.GetSet(PPP.GetPlotMode, PPP.SetPlotMode),
-        "scale":
-        KinJector.GetSet(PPP.GetScale, PPP.SetScale),
-        "skip npth pads":
-        KinJector.GetSet(PPP.GetSkipPlotNPTH_Pads, PPP.SetSkipPlotNPTH_Pads),
-        "text mode":
-        KinJector.GetSet(PPP.GetTextMode, PPP.SetTextMode),
-        "generate gerber job file":
-        KinJector.GetSet(PPP.GetCreateGerberJobFile,
-                         PPP.SetCreateGerberJobFile),
-        "exclude pcb edge":
-        KinJector.GetSet(PPP.GetExcludeEdgeLayer, PPP.SetExcludeEdgeLayer),
-        "format":
-        KinJector.GetSet(PPP.GetFormat, PPP.SetFormat),
-        "coordinate format":
-        KinJector.GetSet(PPP.GetGerberPrecision, PPP.SetGerberPrecision),
-        "include netlist attributes":
-        KinJector.GetSet(PPP.GetIncludeGerberNetlistInfo,
-                         PPP.SetIncludeGerberNetlistInfo),
-        "default line width":
-        KinJector.GetSet(PPP.GetLineWidth, PPP.SetLineWidth),
-        "plot border":
-        KinJector.GetSet(PPP.GetPlotFrameRef, PPP.SetPlotFrameRef),
-        "plot invisible text":
-        KinJector.GetSet(PPP.GetPlotInvisibleText, PPP.SetPlotInvisibleText),
-        "plot pads on silk":
-        KinJector.GetSet(PPP.GetPlotPadsOnSilkLayer,
-                         PPP.SetPlotPadsOnSilkLayer),
-        "plot footprint refs":
-        KinJector.GetSet(PPP.GetPlotReference, PPP.SetPlotReference),
-        "plot footprint values":
-        KinJector.GetSet(PPP.GetPlotValue, PPP.SetPlotValue),
-        "do not tent vias":
-        KinJector.GetSet(PPP.GetPlotViaOnMaskLayer, PPP.SetPlotViaOnMaskLayer),
-        "scaling":
-        KinJector.GetSet(PPP.GetScaleSelection, PPP.SetScaleSelection),
-        "subtract soldermask from silk":
-        KinJector.GetSet(PPP.GetSubtractMaskFromSilk,
-                         PPP.SetSubtractMaskFromSilk),
-        "text mode":
-        KinJector.GetSet(PPP.GetTextMode, PPP.SetTextMode),
-        "use aux axis as origin":
-        KinJector.GetSet(PPP.GetUseAuxOrigin, PPP.SetUseAuxOrigin),
-        "use protel filename extensions":
-        KinJector.GetSet(PPP.GetUseGerberProtelExtensions,
-                         PPP.SetUseGerberProtelExtensions),
-        "use x2 format":
-        KinJector.GetSet(PPP.GetUseGerberX2format, PPP.SetUseGerberX2format),
-        "track width correction":
-        KinJector.GetSet(PPP.GetWidthAdjust, PPP.SetWidthAdjust),
+        "color": KinJector.GetSet(lambda x: None, lambda x, y: None),
+        "plot in outline mode": KinJector.GetSet(
+            PPP.GetDXFPlotPolygonMode, PPP.SetDXFPlotPolygonMode
+        ),
+        "drill marks": KinJector.GetSet(PPP.GetDrillMarksType, PPP.SetDrillMarksType),
+        "x scale factor": KinJector.GetSet(
+            PPP.GetFineScaleAdjustX, PPP.SetFineScaleAdjustX
+        ),
+        "y scale factor": KinJector.GetSet(
+            PPP.GetFineScaleAdjustY, PPP.SetFineScaleAdjustY
+        ),
+        "hpgl pen size": KinJector.GetSet(
+            PPP.GetHPGLPenDiameter, PPP.SetHPGLPenDiameter
+        ),
+        "hpgl pen num": KinJector.GetSet(PPP.GetHPGLPenNum, PPP.SetHPGLPenNum),
+        "hpgl pen speed": KinJector.GetSet(PPP.GetHPGLPenSpeed, PPP.SetHPGLPenSpeed),
+        "mirrored plot": KinJector.GetSet(PPP.GetMirror, PPP.SetMirror),
+        "negative plot": KinJector.GetSet(PPP.GetNegative, PPP.SetNegative),
+        "output directory": KinJector.GetSet(
+            PPP.GetOutputDirectory, PPP.SetOutputDirectory
+        ),
+        "plot mode": KinJector.GetSet(PPP.GetPlotMode, PPP.SetPlotMode),
+        "scale": KinJector.GetSet(PPP.GetScale, PPP.SetScale),
+        "skip npth pads": KinJector.GetSet(
+            PPP.GetSkipPlotNPTH_Pads, PPP.SetSkipPlotNPTH_Pads
+        ),
+        "text mode": KinJector.GetSet(PPP.GetTextMode, PPP.SetTextMode),
+        "generate gerber job file": KinJector.GetSet(
+            PPP.GetCreateGerberJobFile, PPP.SetCreateGerberJobFile
+        ),
+        "exclude pcb edge": KinJector.GetSet(
+            PPP.GetExcludeEdgeLayer, PPP.SetExcludeEdgeLayer
+        ),
+        "format": KinJector.GetSet(PPP.GetFormat, PPP.SetFormat),
+        "coordinate format": KinJector.GetSet(
+            PPP.GetGerberPrecision, PPP.SetGerberPrecision
+        ),
+        "include netlist attributes": KinJector.GetSet(
+            PPP.GetIncludeGerberNetlistInfo, PPP.SetIncludeGerberNetlistInfo
+        ),
+        "default line width": KinJector.GetSet(PPP.GetLineWidth, PPP.SetLineWidth),
+        "plot border": KinJector.GetSet(PPP.GetPlotFrameRef, PPP.SetPlotFrameRef),
+        "plot invisible text": KinJector.GetSet(
+            PPP.GetPlotInvisibleText, PPP.SetPlotInvisibleText
+        ),
+        "plot pads on silk": KinJector.GetSet(
+            PPP.GetPlotPadsOnSilkLayer, PPP.SetPlotPadsOnSilkLayer
+        ),
+        "plot footprint refs": KinJector.GetSet(
+            PPP.GetPlotReference, PPP.SetPlotReference
+        ),
+        "plot footprint values": KinJector.GetSet(PPP.GetPlotValue, PPP.SetPlotValue),
+        "do not tent vias": KinJector.GetSet(
+            PPP.GetPlotViaOnMaskLayer, PPP.SetPlotViaOnMaskLayer
+        ),
+        "scaling": KinJector.GetSet(PPP.GetScaleSelection, PPP.SetScaleSelection),
+        "subtract soldermask from silk": KinJector.GetSet(
+            PPP.GetSubtractMaskFromSilk, PPP.SetSubtractMaskFromSilk
+        ),
+        "text mode": KinJector.GetSet(PPP.GetTextMode, PPP.SetTextMode),
+        "use aux axis as origin": KinJector.GetSet(
+            PPP.GetUseAuxOrigin, PPP.SetUseAuxOrigin
+        ),
+        "use protel filename extensions": KinJector.GetSet(
+            PPP.GetUseGerberProtelExtensions, PPP.SetUseGerberProtelExtensions
+        ),
+        "use x2 format": KinJector.GetSet(
+            PPP.GetUseGerberX2format, PPP.SetUseGerberX2format
+        ),
+        "track width correction": KinJector.GetSet(
+            PPP.GetWidthAdjust, PPP.SetWidthAdjust
+        ),
         # layers are handled as a special case.
-        "layers":
-        KinJector.GetSet(lambda x: None, lambda x, y: None),
+        "layers": KinJector.GetSet(lambda x: None, lambda x, y: None),
     }
 
     def inject(self, data_dict, brd):
@@ -771,7 +758,7 @@ class Plot(KinJector):
         brd_plot_settings = brd.GetPlotOptions()
 
         # Update existing plot settings in the board with new values from data.
-        for key, value in list(data_plot_settings.items()):
+        for key, value in data_plot_settings.items():
             self.key_method_map[key.lower()].set(brd_plot_settings, value)
 
         # Enable specified layers for plotting.
@@ -797,12 +784,11 @@ class Plot(KinJector):
         brd_plot_settings = brd.GetPlotOptions()
         plot_settings_dict = {
             key: method.get(brd_plot_settings)
-            for (key, method) in list(self.key_method_map.items())
+            for (key, method) in self.key_method_map.items()
         }
 
         # Extract the enabled plotting layers.
-        plot_settings_dict["layers"] = list(
-            brd_plot_settings.GetLayerSelection().Seq())
+        plot_settings_dict["layers"] = list(brd_plot_settings.GetLayerSelection().Seq())
 
         return {self.dict_key: plot_settings_dict}
 
@@ -892,7 +878,7 @@ class ModulesByRef(KinJector):
         brd_modules = {self.get_id(m): m for m in brd.GetModules()}
 
         # Assign the data in the data_dict to the parts on the board.
-        for data_module_ref, data_module_data in list(data_modules.items()):
+        for data_module_ref, data_module_data in data_modules.items():
 
             # Check to see if the part from the data dict exists on the board.
             try:
@@ -911,8 +897,7 @@ class ModulesByRef(KinJector):
 
         # Get data from each part and store it in dict using part ref as key.
         part_data_dict = {
-            part_ref: Module().eject(part)
-            for (part_ref, part) in list(brd_parts.items())
+            part_ref: Module().eject(part) for (part_ref, part) in brd_parts.items()
         }
 
         return {self.dict_key: part_data_dict}

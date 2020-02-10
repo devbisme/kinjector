@@ -3,7 +3,7 @@
 """Top-level package for KinJector."""
 
 from .kinjector import *
-from .pckg_info import version, email, author
+from .pckg_info import author, email, version
 
 __author__ = author
 __email__ = email

@@ -3,6 +3,13 @@ History
 =======
 
 
+0.0.6 (2020-02-10)
+------------------
+
+* Reset file pointer from end-of-file or else a KiCad board file will be accepted as
+  legal YAML and will be overwritten with YAML. 
+
+
 0.0.5 (2019-06-19)
 ------------------
 
