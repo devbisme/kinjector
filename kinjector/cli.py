@@ -142,7 +142,7 @@ def main():
             except Exception:
                 try:
                     fp.seek(0)
-                    file_dict = yaml.load(fp, Loader=yaml.Loader) # Exception if not YAML.
+                    file_dict = yaml.safe_load(fp, Loader=yaml.Loader) # Exception if not YAML.
                     fp.close()
                     # Overwrite the YAML file.
                     with open(file, 'w') as fp:
