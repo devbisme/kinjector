@@ -111,67 +111,66 @@ def main():
     # Combine the input files into a single injection dict.
     injection_dict = {}
     for file in args.from_:
-        fp = open(file, "r")  # Throw exception if file doesn't exist.
-        try:
-            # Do this if it's a JSON file.
-            fp.seek(0)
-            file_dict = json.load(fp)
-        except Exception:
+        with open(file, "r") as fp:
             try:
-                # Do this if it's a YAML file.
-                fp.seek(0)
-                file_dict = yaml.load(fp, Loader=yaml.Loader)
-                if not isinstance(file_dict, collections.Mapping):
-                    raise Exception
+                # Do this if it's a JSON file.
+                file_dict = json.load(fp)
             except Exception:
                 try:
-                    # Do this if it's a KiCad board file.
-                    fp.close()
-                    brd = pcbnew.LoadBoard(file)
-                    file_dict = Board().eject(brd)
-                except Exception as e:
-                    # OK, it's none of those things.
-                    print("Hey! I can't handle this input file:", file)
-                    raise e
-        merge_dicts(injection_dict, file_dict)
-        fp.close()
+                    # Do this if it's a YAML file.
+                    fp.seek(0)
+                    file_dict = yaml.load(fp, Loader=yaml.Loader)
+                    if not isinstance(file_dict, collections.Mapping):
+                        raise Exception
+                except Exception:
+                    try:
+                        # Do this if it's a KiCad board file.
+                        brd = pcbnew.LoadBoard(file)
+                        file_dict = Board().eject(brd)
+                    except Exception as e:
+                        # OK, it's none of those things.
+                        print("Hey! I can't handle this input file:", file)
+                        raise e
+                    
+            # Merge dict from current file into the total injection dict.
+            merge_dicts(injection_dict, file_dict)
 
     # Insert the injection dict into each of the output files.
     for file in args.to:
         try:
-            fp = open(file, "r")
+            with open(file, "r") as fp:
 
-            # The file exists and could be opened, now find out what type it is.
-            try:
-                fp.seek(0)
-                file_dict = json.load(fp)  # Causes exception if not JSON.
-                fp.close()
-                # Overwrite the JSON file.
-                with open(file, "w") as fp:
-                    json.dump(injection_dict, fp, indent=4)
-            except Exception:
+                # The file exists and could be opened, now find out what type it is.
                 try:
-                    fp.seek(0)
-                    file_dict = yaml.load(
-                        fp, Loader=yaml.Loader
-                    )  # Exception if not YAML.
-                    fp.close()
-                    # Overwrite the YAML file.
+                    file_dict = json.load(fp)  # Causes exception if not JSON.
+                    # Overwrite the JSON file.
                     with open(file, "w") as fp:
-                        yaml.safe_dump(injection_dict, fp, default_flow_style=False)
+                        json.dump(injection_dict, fp, indent=4)
                 except Exception:
                     try:
-                        fp.close()
-                        brd = pcbnew.LoadBoard(
-                            file
-                        )  # Exception if not KiCad board file.
-                        # Inject the new values into the board.
-                        Board().inject(injection_dict, brd)
-                        # Overwrite the KiCad board file.
-                        brd.Save(file)
-                    except Exception as e:
-                        raise e
-        except IOError:
+                        fp.seek(0)  # Reset to file start and test for YAML.
+
+                        # Raise an exception if the file doesn't contain YAML.
+                        file_dict = yaml.safe_load(fp)
+                        if not isinstance(file_dict, collections.Mapping):
+                            raise Exception
+                        
+                        # Overwrite the YAML file.
+                        with open(file, "w") as fp:
+                            yaml.safe_dump(injection_dict, fp, default_flow_style=False)
+                    except Exception:
+                        try:
+                            fp.close()
+                            # Raise exception if not KiCad board file.
+                            brd = pcbnew.LoadBoard(file)
+                            # Inject the new values into the board.
+                            Board().inject(injection_dict, brd)
+                            # Overwrite the KiCad board file.
+                            brd.Save(file)
+                        except Exception as e:
+                            print("Hey! I can't handle this output file:", file)
+                            raise e
+        except IOError as e:
             # No existing file, so create a file with the injection dict contents.
             file_ext = str.lower(os.path.splitext(file)[1])
             if file_ext == ".json":
@@ -180,9 +179,12 @@ def main():
             elif file_ext == ".yaml":
                 with open(file, "w") as fp:
                     yaml.safe_dump(injection_dict, fp, default_flow_style=False)
+            elif file_ext == ".kicad_pcb":
+                print("I can't make a KiCad board file from scratch:", file)
+                raise e
             else:
-                Board().inject(injection_dict, brd)
-                brd.Save(file)
+                print("OK, I don't know what you want with a file like this:", file)
+                raise e
 
 
 ###############################################################################
