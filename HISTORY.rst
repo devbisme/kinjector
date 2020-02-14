@@ -3,11 +3,11 @@ History
 =======
 
 
-0.0.6 (2020-02-10)
+0.0.6 (2020-02-14)
 ------------------
 
-* Reset file pointer from end-of-file or else a KiCad board file will be accepted as
-  legal YAML and will be overwritten with YAML. 
+* yaml.load() will accept a KiCad board file as legal YAML, so place additional checks
+  to detect yaml files and prevent over-writing .kicad_pcb files with YAML. 
 
 
 0.0.5 (2019-06-19)

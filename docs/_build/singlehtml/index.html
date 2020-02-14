@@ -1,19 +1,17 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>KinJector 0.0.4 documentation</title>
+    <meta charset="utf-8" />
+    <title>KinJector 0.0.6 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
    
@@ -40,23 +38,23 @@
 <a class="reference external image-reference" href="https://pypi.python.org/pypi/kinjector"><img alt="https://img.shields.io/pypi/v/kinjector.svg" src="https://img.shields.io/pypi/v/kinjector.svg" /></a>
 <p>Inject/eject JSON/YAML data to/from KiCad Board files.</p>
 <ul class="simple">
-<li>Free software: MIT license</li>
-<li>Documentation: <a class="reference external" href="https://xesscorp.github.io/kinjector">https://xesscorp.github.io/kinjector</a></li>
+<li><p>Free software: MIT license</p></li>
+<li><p>Documentation: <a class="reference external" href="https://xesscorp.github.io/kinjector">https://xesscorp.github.io/kinjector</a></p></li>
 </ul>
 <div class="section" id="features">
 <h3>Features<a class="headerlink" href="#features" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
-<li>Parameters in one or more JSON or YAML files can be injected into a
-KiCad PCB file.</li>
-<li>Parameters from a KiCad PCB file can be extracted and stored in a
-JSON or YAML file.</li>
-<li>The currently-supported set of parameters can control the design rules, net classes,
+<li><p>Parameters in one or more JSON or YAML files can be injected into a
+KiCad PCB file.</p></li>
+<li><p>Parameters from a KiCad PCB file can be extracted and stored in a
+JSON or YAML file.</p></li>
+<li><p>The currently-supported set of parameters can control the design rules, net classes,
 assignment of netclasses to particular nets, plotting options,
-and (X,Y)/orientation/top-bottom-side position of part footprints.</li>
-<li>Subsets of parameters can be used to restrict the scope of effects upon the PCB.</li>
-<li>A script is provided to allow injection/ejection of JSON/YAML data to/from
+and (X,Y)/orientation/top-bottom-side position of part footprints.</p></li>
+<li><p>Subsets of parameters can be used to restrict the scope of effects upon the PCB.</p></li>
+<li><p>A script is provided to allow injection/ejection of JSON/YAML data to/from
 a KiCad PCB file. In addition, the <code class="docutils literal notranslate"><span class="pre">kinjector</span></code> module can be used within
-other Python scripts to manipulate KiCad PCB files.</li>
+other Python scripts to manipulate KiCad PCB files.</p></li>
 </ul>
 </div>
 </div>
@@ -86,111 +84,186 @@ that with this command:</p>
 <p>KinJector comes with a command-line script called (appropriately enough) <code class="docutils literal notranslate"><span class="pre">kinjector</span></code>.
 It can be used in two ways:</p>
 <ol class="arabic simple">
-<li>To inject data stored in a JSON or YAML file into a KiCad board file</li>
+<li><p>To inject data stored in a JSON or YAML file into a KiCad board file</p></li>
 </ol>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> kinjector -from data.json -to test.kicad_pcb
 </pre></div>
 </div>
 <ol class="arabic simple" start="2">
-<li>To extract data from a KiCad board file and store it in a JSON or YAML file</li>
+<li><p>To extract data from a KiCad board file and store it in a JSON or YAML file</p></li>
 </ol>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> kinjector -from test.kicad_pcb -to data.yaml
 </pre></div>
 </div>
 <p>The data file can contain information on:</p>
 <ul class="simple">
-<li>Design rule settings (allowable track widths, via sizes, etc.);</li>
-<li>Enabled board layers and layer visibility;</li>
-<li>Net class definitions;</li>
-<li>Assignments of nets to net classes;</li>
-<li>Plot settings (format, output layers, etc.);</li>
-<li>Part information such as (X,Y) position, angle of orientation, and location on
-the top or bottom side of the PCB.</li>
+<li><p>Design rule settings (allowable track widths, via sizes, etc.);</p></li>
+<li><p>Enabled board layers and layer visibility;</p></li>
+<li><p>Net class definitions;</p></li>
+<li><p>Assignments of nets to net classes;</p></li>
+<li><p>Plot settings (format, output layers, etc.);</p></li>
+<li><p>Part information such as (X,Y) position, angle of orientation, and location on
+the top or bottom side of the PCB.</p></li>
 </ul>
 <p>The easiest way to comprehend the structure of the data is to extract an example
 from an existing board and look at the resulting JSON/YAML file as follows:</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">board</span><span class="p">:</span>
+  <span class="nt">board setup</span><span class="p">:</span>
+    <span class="nt">design rules</span><span class="p">:</span>
+      <span class="nt">blind/buried via allowed</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+      <span class="nt">hole to hole spacing</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">678976266</span>
+      <span class="nt">min track width</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">320000</span>
+      <span class="nt">min uvia diameter</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">470000</span>
+      <span class="nt">min uvia drill size</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">120000</span>
+      <span class="nt">min via diameter</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">120000</span>
+      <span class="nt">min via drill size</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">110000</span>
+      <span class="nt">prohibit courtyard overlap</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
+      <span class="nt">require courtyards</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
+      <span class="nt">uvia allowed</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+    <span class="nt">layers</span><span class="p">:</span>
+      <span class="s">&#39;#</span><span class="nv"> </span><span class="s">copper</span><span class="nv"> </span><span class="s">layers&#39;</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">4</span>
+      <span class="nt">board thickness</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">3200000</span>
+      <span class="nt">enabled</span><span class="p">:</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">0</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">2</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">31</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">32</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">33</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">34</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">35</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">36</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">37</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">38</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">39</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">49</span>
+      <span class="nt">visible</span><span class="p">:</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">0</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">31</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">32</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">33</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">34</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">35</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">36</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">37</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">38</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">39</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">49</span>
+    <span class="nt">net classes</span><span class="p">:</span>
+      <span class="nt">net class assignments</span><span class="p">:</span>
+        <span class="p p-Indicator">?</span> <span class="s">&#39;&#39;</span>
+        <span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">Default</span>
+        <span class="nt">Net-(D1-Pad1)</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">new_new_class</span>
+        <span class="nt">Net-(D1-Pad2)</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Default</span>
+        <span class="nt">Net-(R1-Pad2)</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Default</span>
+        <span class="nt">Net-(R2-Pad1)</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">new_new_class</span>
+      <span class="nt">net class definitions</span><span class="p">:</span>
+        <span class="nt">Default</span><span class="p">:</span>
+          <span class="nt">clearance</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">600000</span>
+          <span class="nt">description</span><span class="p">:</span> <span class="s">&#39;&#39;</span>
+          <span class="nt">diff pair gap</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">450000</span>
+          <span class="nt">diff pair width</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">400000</span>
+          <span class="nt">track width</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">350000</span>
+          <span class="nt">uvia diameter</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">800000</span>
+          <span class="nt">uvia drill</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">300000</span>
+          <span class="nt">via diameter</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">900000</span>
+          <span class="nt">via drill</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">800000</span>
+        <span class="nt">new_new_class</span><span class="p">:</span>
+          <span class="nt">clearance</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">220000</span>
+          <span class="nt">description</span><span class="p">:</span> <span class="s">&#39;&#39;</span>
+          <span class="nt">diff pair gap</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">255000</span>
+          <span class="nt">diff pair width</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">150000</span>
+          <span class="nt">track width</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">225000</span>
+          <span class="nt">uvia diameter</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">330000</span>
+          <span class="nt">uvia drill</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">110000</span>
+          <span class="nt">via diameter</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">880000</span>
+          <span class="nt">via drill</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">455000</span>
+    <span class="nt">solder mask/paste</span><span class="p">:</span>
+      <span class="nt">solder mask clearance</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">34000</span>
+      <span class="nt">solder mask min width</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">570000</span>
+      <span class="nt">solder paste clearance</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
+      <span class="nt">solder paste clearance ratio</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">-0.2</span>
+    <span class="l l-Scalar l-Scalar-Plain">tracks, vias, diff pairs</span><span class="p p-Indicator">:</span>
+      <span class="nt">diff pair dimensions list</span><span class="p">:</span> <span class="p p-Indicator">[]</span>
+      <span class="nt">track width list</span><span class="p">:</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">1990000</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">456000</span>
+      <span class="nt">via dimensions list</span><span class="p">:</span>
+      <span class="p p-Indicator">-</span> <span class="nt">diameter</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">480000</span>
+        <span class="nt">drill</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">841000</span>
   <span class="nt">modules</span><span class="p">:</span>
     <span class="nt">D1</span><span class="p">:</span>
       <span class="nt">position</span><span class="p">:</span>
-        <span class="nt">angle</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">304.0</span>
-        <span class="nt">side</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">top</span>
-        <span class="nt">x</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">161417004</span>
-        <span class="nt">y</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">99187004</span>
+        <span class="nt">angle</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">-120.0</span>
+        <span class="nt">side</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">bottom</span>
+        <span class="nt">x</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">172517000</span>
+        <span class="nt">y</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">90297000</span>
     <span class="nt">R1</span><span class="p">:</span>
       <span class="nt">position</span><span class="p">:</span>
-        <span class="nt">angle</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">122.0</span>
+        <span class="nt">angle</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">-30.0</span>
         <span class="nt">side</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">top</span>
-        <span class="nt">x</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">161417002</span>
-        <span class="nt">y</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">102137002</span>
+        <span class="nt">x</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">161528000</span>
+        <span class="nt">y</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">102248000</span>
     <span class="nt">R2</span><span class="p">:</span>
       <span class="nt">position</span><span class="p">:</span>
-        <span class="nt">angle</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">147.0</span>
-        <span class="nt">side</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">bottom</span>
-        <span class="nt">x</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">166187003</span>
-        <span class="nt">y</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">99187003</span>
+        <span class="nt">angle</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">120.0</span>
+        <span class="nt">side</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">top</span>
+        <span class="nt">x</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">166187222</span>
+        <span class="nt">y</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">99187111</span>
     <span class="nt">R3</span><span class="p">:</span>
       <span class="nt">position</span><span class="p">:</span>
-        <span class="nt">angle</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">329.0</span>
+        <span class="nt">angle</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">30.0</span>
         <span class="nt">side</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">bottom</span>
-        <span class="nt">x</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">166187001</span>
-        <span class="nt">y</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">102137001</span>
-  <span class="nt">settings</span><span class="p">:</span>
-    <span class="s">&#39;#</span><span class="nv"> </span><span class="s">copper</span><span class="nv"> </span><span class="s">layers&#39;</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">4</span>
-    <span class="nt">blind/buried via allowed</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
-    <span class="nt">board thickness</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1600001</span>
-    <span class="nt">diff pair dimensions list</span><span class="p">:</span> <span class="p p-Indicator">[]</span>
-    <span class="nt">hole to hole spacing</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0</span>
-    <span class="nt">netclass assignments</span><span class="p">:</span>
-      <span class="p p-Indicator">?</span> <span class="s">&#39;&#39;</span>
-      <span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">Default</span>
-      <span class="nt">Net-(D1-Pad1)</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">new_new_class</span>
-      <span class="nt">Net-(D1-Pad2)</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Default</span>
-      <span class="nt">Net-(R1-Pad2)</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Default</span>
-      <span class="nt">Net-(R2-Pad1)</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">new_new_class</span>
-    <span class="nt">netclasses</span><span class="p">:</span>
-      <span class="nt">Default</span><span class="p">:</span>
-        <span class="nt">clearance</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">200001</span>
-        <span class="nt">description</span><span class="p">:</span> <span class="s">&#39;&#39;</span>
-        <span class="nt">diff pair gap</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">250001</span>
-        <span class="nt">diff pair width</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">200001</span>
-        <span class="nt">track width</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">250001</span>
-        <span class="nt">uvia diameter</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">300001</span>
-        <span class="nt">uvia drill</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">100001</span>
-        <span class="nt">via diameter</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">800001</span>
-        <span class="nt">via drill</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">400001</span>
-      <span class="nt">new_new_class</span><span class="p">:</span>
-        <span class="nt">clearance</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">400001</span>
-        <span class="nt">description</span><span class="p">:</span> <span class="s">&#39;&#39;</span>
-        <span class="nt">diff pair gap</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">500001</span>
-        <span class="nt">diff pair width</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">400001</span>
-        <span class="nt">track width</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">500001</span>
-        <span class="nt">uvia diameter</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">600001</span>
-        <span class="nt">uvia drill</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">200001</span>
-        <span class="nt">via diameter</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1600001</span>
-        <span class="nt">via drill</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">800001</span>
-    <span class="nt">prohibit courtyard overlap</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
-    <span class="nt">require courtyards</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
-    <span class="nt">solder mask margin</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">51001</span>
-    <span class="nt">solder mask min width</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">500001</span>
-    <span class="nt">solder paste margin</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
-    <span class="nt">solder paste margin ratio</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.1</span>
-    <span class="nt">track min width</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">200001</span>
-    <span class="nt">track width list</span><span class="p">:</span>
-    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">250000</span>
-    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">250001</span>
-    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">1000001</span>
-    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">650001</span>
-    <span class="nt">uvia allowed</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
-    <span class="nt">uvia min diameter</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">200001</span>
-    <span class="nt">uvia min drill size</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">100001</span>
-    <span class="nt">via dimensions list</span><span class="p">:</span>
-    <span class="p p-Indicator">-</span> <span class="nt">diameter</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">800000</span>
-      <span class="nt">drill</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">400000</span>
-    <span class="p p-Indicator">-</span> <span class="nt">diameter</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">800001</span>
-      <span class="nt">drill</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">400001</span>
-    <span class="nt">via min diameter</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">200001</span>
-    <span class="nt">via min drill size</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">300001</span>
+        <span class="nt">x</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">277187000</span>
+        <span class="nt">y</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">203137000</span>
+  <span class="nt">plot</span><span class="p">:</span>
+    <span class="nt">autoscale</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+    <span class="nt">color</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">null</span>
+    <span class="nt">coordinate format</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">4</span>
+    <span class="nt">default line width</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">150000</span>
+    <span class="nt">do not tent vias</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+    <span class="nt">drill marks</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">2</span>
+    <span class="nt">exclude pcb edge</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
+    <span class="nt">force a4 output</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+    <span class="nt">format</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">2</span>
+    <span class="nt">generate gerber job file</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+    <span class="nt">hpgl pen num</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">2</span>
+    <span class="nt">hpgl pen size</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">16.0</span>
+    <span class="nt">hpgl pen speed</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">30</span>
+    <span class="nt">include netlist attributes</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+    <span class="nt">layers</span><span class="p">:</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">0</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">2</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">31</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">34</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">35</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">36</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">37</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">38</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">39</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">44</span>
+    <span class="nt">mirrored plot</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+    <span class="nt">negative plot</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+    <span class="nt">output directory</span><span class="p">:</span> <span class="s">&#39;&#39;</span>
+    <span class="nt">plot border</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+    <span class="nt">plot footprint refs</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
+    <span class="nt">plot footprint values</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
+    <span class="nt">plot in outline mode</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
+    <span class="nt">plot invisible text</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+    <span class="nt">plot mode</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
+    <span class="nt">plot pads on silk</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+    <span class="nt">scale</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">2.0</span>
+    <span class="nt">scaling</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">3</span>
+    <span class="nt">skip npth pads</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+    <span class="nt">subtract soldermask from silk</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+    <span class="nt">text mode</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">2</span>
+    <span class="nt">track width correction</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
+    <span class="nt">use aux axis as origin</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+    <span class="nt">use protel filename extensions</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+    <span class="nt">use x2 format</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+    <span class="nt">x scale factor</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">2.0</span>
+    <span class="nt">y scale factor</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1.2</span>
 </pre></div>
 </div>
 <p>You don’t need to specify every field in order to inject data into a board:
@@ -198,8 +271,9 @@ only the fields you want to change are needed.
 For example, this YAML file will change the minimum track width to
 0.3 mm (300000 nm) and leave the rest of the board unchanged:</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">board</span><span class="p">:</span>
-  <span class="nt">settings</span><span class="p">:</span>
-    <span class="nt">track min width</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">300000</span>
+  <span class="nt">board setup</span><span class="p">:</span>
+    <span class="nt">design rules</span><span class="p">:</span>
+      <span class="nt">min track width</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">320000</span>
 </pre></div>
 </div>
 </div>
@@ -211,10 +285,10 @@ For example, this YAML file will change the minimum track width to
 </div>
 <p>This will give you access to the <code class="docutils literal notranslate"><span class="pre">Board</span></code> class that has two methods:</p>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">inject(self,</span> <span class="pre">data_dict,</span> <span class="pre">brd)</span></code>: This will inject the data in a dictionary
-into a KiCad <code class="docutils literal notranslate"><span class="pre">BOARD</span></code> object.</li>
-<li><code class="docutils literal notranslate"><span class="pre">eject(self,</span> <span class="pre">brd)</span></code>: This will return a dictionary containing all the data
-that is currently supported from a <code class="docutils literal notranslate"><span class="pre">BOARD</span></code> object.</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">inject(self,</span> <span class="pre">data_dict,</span> <span class="pre">brd)</span></code>: This will inject the data in a dictionary
+into a KiCad <code class="docutils literal notranslate"><span class="pre">BOARD</span></code> object.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">eject(self,</span> <span class="pre">brd)</span></code>: This will return a dictionary containing all the data
+that is currently supported from a <code class="docutils literal notranslate"><span class="pre">BOARD</span></code> object.</p></li>
 </ul>
 <p>As an example, the code shown below will extract all the data from a KiCad
 PCB file and then inject it all back into the same board:</p>
@@ -252,9 +326,9 @@ helps, and credit will always be given.</p>
 <p>Report bugs at <a class="reference external" href="https://github.com/xesscorp/kinjector/issues">https://github.com/xesscorp/kinjector/issues</a>.</p>
 <p>If you are reporting a bug, please include:</p>
 <ul class="simple">
-<li>Your operating system name and version.</li>
-<li>Any details about your local setup that might be helpful in troubleshooting.</li>
-<li>Detailed steps to reproduce the bug.</li>
+<li><p>Your operating system name and version.</p></li>
+<li><p>Any details about your local setup that might be helpful in troubleshooting.</p></li>
+<li><p>Detailed steps to reproduce the bug.</p></li>
 </ul>
 </div>
 <div class="section" id="fix-bugs">
@@ -278,10 +352,10 @@ articles, and such.</p>
 <p>The best way to send feedback is to file an issue at <a class="reference external" href="https://github.com/xesscorp/kinjector/issues">https://github.com/xesscorp/kinjector/issues</a>.</p>
 <p>If you are proposing a feature:</p>
 <ul class="simple">
-<li>Explain in detail how it would work.</li>
-<li>Keep the scope as narrow as possible, to make it easier to implement.</li>
-<li>Remember that this is a volunteer-driven project, and that contributions
-are welcome :)</li>
+<li><p>Explain in detail how it would work.</p></li>
+<li><p>Keep the scope as narrow as possible, to make it easier to implement.</p></li>
+<li><p>Remember that this is a volunteer-driven project, and that contributions
+are welcome :)</p></li>
 </ul>
 </div>
 </div>
@@ -289,11 +363,11 @@ are welcome :)</li>
 <h3>Pull Request Guidelines<a class="headerlink" href="#pull-request-guidelines" title="Permalink to this headline">¶</a></h3>
 <p>Before you submit a pull request, check that it meets these guidelines:</p>
 <ol class="arabic simple">
-<li>The pull request should include tests.</li>
-<li>If the pull request adds functionality, the docs should be updated. Put
+<li><p>The pull request should include tests.</p></li>
+<li><p>If the pull request adds functionality, the docs should be updated. Put
 your new functionality into a function with a docstring, and add the
-feature to the list in README.rst.</li>
-<li>The pull request should work for Python 2.7 and 3.7.</li>
+feature to the list in README.rst.</p></li>
+<li><p>The pull request should work for Python 2.7 and 3.7.</p></li>
 </ol>
 </div>
 </div>
@@ -302,43 +376,56 @@ feature to the list in README.rst.</li>
 <div class="section" id="development-lead">
 <h3>Development Lead<a class="headerlink" href="#development-lead" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
-<li>XESS Corp. &lt;<a class="reference external" href="mailto:info&#37;&#52;&#48;xess&#46;com">info<span>&#64;</span>xess<span>&#46;</span>com</a>&gt;</li>
+<li><p>XESS Corp. &lt;<a class="reference external" href="mailto:info&#37;&#52;&#48;xess&#46;com">info<span>&#64;</span>xess<span>&#46;</span>com</a>&gt;</p></li>
 </ul>
 </div>
 <div class="section" id="contributors">
 <h3>Contributors<a class="headerlink" href="#contributors" title="Permalink to this headline">¶</a></h3>
-<p>None yet. Why not be the first?</p>
+<p>Mike Tsao - <a class="reference external" href="https://sowbug.github.io/">https://sowbug.github.io/</a></p>
 </div>
 </div>
 <span id="document-history"></span><div class="section" id="history">
 <h2>History<a class="headerlink" href="#history" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="id1">
-<h3>0.0.4 (2019-06-10)<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<h3>0.0.6 (2020-02-14)<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
-<li>Added ability to inject/eject plot settings (but not drill settings).</li>
+<li><p>yaml.load() will accept a KiCad board file as legal YAML, so place additional checks
+to detect yaml files and prevent over-writing .kicad_pcb files with YAML.</p></li>
 </ul>
 </div>
 <div class="section" id="id2">
-<h3>0.0.3 (2019-06-07)<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<h3>0.0.5 (2019-06-19)<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
-<li>Added ability to inject/eject layer enables and visibility.</li>
+<li><p>Rearranged hierarchy of board data to more closely reflect KiCad board setup dialog.</p></li>
 </ul>
 </div>
 <div class="section" id="id3">
-<h3>0.0.2 (2019-05-29)<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
+<h3>0.0.4 (2019-06-10)<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
-<li>Added ability to inject/eject part (X,Y), orientation, and PCB top/bottom-side.</li>
-<li>Added ability to inject/eject board design rules.</li>
-<li>Now works with both JSON and YAML file formats.</li>
-<li>Unit tests added.</li>
-<li>Command-line tool added.</li>
-<li>Documentation added.</li>
+<li><p>Added ability to inject/eject plot settings (but not drill settings).</p></li>
 </ul>
 </div>
 <div class="section" id="id4">
-<h3>0.0.1 (2019-05-15)<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
+<h3>0.0.3 (2019-06-07)<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
-<li>First release on PyPI.</li>
+<li><p>Added ability to inject/eject layer enables and visibility.</p></li>
+</ul>
+</div>
+<div class="section" id="id5">
+<h3>0.0.2 (2019-05-29)<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Added ability to inject/eject part (X,Y), orientation, and PCB top/bottom-side.</p></li>
+<li><p>Added ability to inject/eject board design rules.</p></li>
+<li><p>Now works with both JSON and YAML file formats.</p></li>
+<li><p>Unit tests added.</p></li>
+<li><p>Command-line tool added.</p></li>
+<li><p>Documentation added.</p></li>
+</ul>
+</div>
+<div class="section" id="id6">
+<h3>0.0.1 (2019-05-15)<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>First release on PyPI.</p></li>
 </ul>
 </div>
 </div>
@@ -347,9 +434,9 @@ feature to the list in README.rst.</li>
 <div class="section" id="indices-and-tables">
 <h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
 <ul class="simple">
-<li><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></li>
-<li><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></li>
-<li><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></li>
+<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
+<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
+<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
 </ul>
 </div>
 
@@ -403,7 +490,7 @@ feature to the list in README.rst.</li>
       &copy;2019, XESS Corp..
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.5</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.1</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
     </div>
