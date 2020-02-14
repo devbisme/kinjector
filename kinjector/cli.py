@@ -131,7 +131,7 @@ def main():
                         # OK, it's none of those things.
                         print("Hey! I can't handle this input file:", file)
                         raise e
-                    
+
             # Merge dict from current file into the total injection dict.
             merge_dicts(injection_dict, file_dict)
 
@@ -154,7 +154,7 @@ def main():
                         file_dict = yaml.safe_load(fp)
                         if not isinstance(file_dict, collections.Mapping):
                             raise Exception
-                        
+
                         # Overwrite the YAML file.
                         with open(file, "w") as fp:
                             yaml.safe_dump(injection_dict, fp, default_flow_style=False)
