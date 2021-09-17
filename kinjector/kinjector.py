@@ -1,6 +1,6 @@
 ﻿# MIT license
 #
-# Copyright (C) 2019 by XESS Corp.
+# Copyright (C) 2019-2021 by Dave Vandenbout.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -25,7 +25,9 @@ and for ejecting values from a board file into a dict.
 """
 
 import collections
+import sys
 
+sys.path.append('/usr/lib/python3/dist-packages')
 from pcbnew import DIFF_PAIR_DIMENSION, LSET
 from pcbnew import NETCLASSPTR as NCP
 from pcbnew import PCB_PLOT_PARAMS as PPP
