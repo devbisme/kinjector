@@ -48,8 +48,8 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'KinJector'
-copyright = u"2019, XESS Corp."
-author = u"XESS Corp."
+copyright = u"2019-2021, Dave Vandenbout"
+author = u"Dave Vandenbout"
 
 # The version info for the project you're documenting, acts as replacement
 # for |version| and |release|, also used in various other places throughout
@@ -130,7 +130,7 @@ latex_elements = {
 latex_documents = [
     (master_doc, 'kinjector.tex',
      u'KinJector Documentation',
-     u'XESS Corp.', 'manual'),
+     u'Dave Vandenbout', 'manual'),
 ]
 
 

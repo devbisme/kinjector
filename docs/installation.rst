@@ -24,4 +24,4 @@ that with this command:
 
 .. code-block:: console
 
-    $ pip install git+https://github.com/xesscorp/kinjector
+    $ pip install git+https://github.com/devbisme/kinjector

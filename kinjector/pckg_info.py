@@ -1,3 +1,3 @@
-version = "0.0.6"
-author = "XESS Corp."
-email = "info@xess.com"
+author = 'Dave Vandenbout'
+email = 'devb@xess.com'
+version = '1.0.0'

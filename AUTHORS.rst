@@ -5,9 +5,7 @@ Credits
 Development Lead
 ----------------
 
-* XESS Corp. <info@xess.com>
+* Dave Vandenbout <devb@xess.com>
 
-Contributors
-------------
-
-Mike Tsao - https://sowbug.github.io/
+`Other Contributors <https://github.com/devbisme/kinjector/graphs/contributors>`_
+---------------------------------------------------------------------------------

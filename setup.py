@@ -6,9 +6,9 @@ import sys
 
 from setuptools import find_packages, setup
 
-author = "XESS Corp."
-email = "info@xess.com"
-version = "0.0.6"
+author = "Dave Vandenbout"
+email = "devb@xess.com"
+version = "1.0.0"
 
 if "sdist" in sys.argv[1:]:
     with open("kinjector/pckg_info.py", "w") as f:
@@ -37,12 +37,14 @@ setup(
     author=author,
     author_email=email,
     classifiers=[
-        "Development Status :: 3 - Alpha",
-        "Intended Audience :: Developers",
+        "Development Status :: 5 - Production/Stable",
+        "Intended Audience :: Manufacturing",
         "License :: OSI Approved :: MIT License",
         "Natural Language :: English",
-        "Programming Language :: Python :: 2",
+        "Operating System :: OS Independent",
         "Programming Language :: Python :: 2.7",
+        "Programming Language :: Python :: 3",
+        "Topic :: Scientific/Engineering :: Electronic Design Automation (EDA)",
     ],
     description="Inject/eject JSON/YAML data to/from KiCad files.",
     entry_points={"console_scripts": ["kinjector=kinjector.cli:main",],},
@@ -56,7 +58,13 @@ setup(
     setup_requires=setup_requirements,
     test_suite="tests",
     tests_require=test_requirements,
-    url="https://github.com/xesscorp/kinjector",
+    url="https://github.com/devbisme/kinjector",
+    project_urls={
+        "Documentation": "https://devbisme.github.io/kinjector",
+        "Source": "https://github.com/devbisme/kinjector",
+        "Changelog": "https://github.com/devbisme/kinjector/blob/master/HISTORY.rst",
+        "Tracker": "https://github.com/devbisme/kinjector/issues",
+    },
     version=version,
     zip_safe=False,
 )
