@@ -877,7 +877,7 @@ class ModulesByRef(KinJector):
         data_modules = data_dict.get(self.dict_key, {})
 
         # Get all the parts in the board indexed by references.
-        brd_modules = {self.get_id(m): m for m in brd.GetModules()}
+        brd_modules = {self.get_id(m): m for m in brd.GetFootprints()}
 
         # Assign the data in the data_dict to the parts on the board.
         for data_module_ref, data_module_data in data_modules.items():
@@ -895,7 +895,7 @@ class ModulesByRef(KinJector):
         """Return part data from parts as a dict in a KiCad BOARD object."""
 
         # Get all the parts in the board indexed by references.
-        brd_parts = {self.get_id(m): m for m in brd.GetModules()}
+        brd_parts = {self.get_id(m): m for m in brd.GetFootprints()}
 
         # Get data from each part and store it in dict using part ref as key.
         part_data_dict = {
