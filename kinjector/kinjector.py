@@ -43,7 +43,7 @@ from pcbnew import (
 
 
 def merge_dicts(dct, merge_dct):
-    """ 
+    """
     Dict merge that recurses through both dicts and updates keys.
 
     Args:
