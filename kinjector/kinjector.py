@@ -219,13 +219,13 @@ class DesignRules(KinJector):
         brd_drs = brd.GetDesignSettings()
 
         data_drs = {
-            "blind/buried via allowed": brd_drs.m_BlindBuriedViaAllowed,
-            "uvia allowed": brd_drs.m_MicroViasAllowed,
-            "require courtyards": brd_drs.m_RequireCourtyards,
-            "prohibit courtyard overlap": brd_drs.m_ProhibitOverlappingCourtyards,
+            "blind/buried via allowed": getattr(brd_drs, 'm_BlindBuriedViaAllowed', None),
+            "uvia allowed": getattr(brd_drs, 'm_MicroViasAllowed', None),
+            "require courtyards": getattr(brd_drs, 'm_RequireCourtyards', None),
+            "prohibit courtyard overlap": getattr(brd_drs, 'm_ProhibitOverlappingCourtyards', None),
             "min track width": brd_drs.m_TrackMinWidth,
             "min via diameter": brd_drs.m_ViasMinSize,
-            "min via drill size": brd_drs.m_ViasMinDrill,
+            "min via drill size": getattr(brd_drs, 'm_ViasMinDrill', None),
             "min uvia diameter": brd_drs.m_MicroViasMinSize,
             "min uvia drill size": brd_drs.m_MicroViasMinDrill,
             "hole to hole spacing": brd_drs.m_HoleToHoleMin,
@@ -605,7 +605,7 @@ class SolderMaskPaste(KinJector):
         brd_drs = brd.GetDesignSettings()
 
         data_drs = {
-            "solder mask clearance": brd_drs.m_SolderMaskMargin,
+            "solder mask clearance": getattr(brd_drs, 'm_SolderMaskMargin', None),
             "solder mask min width": brd_drs.m_SolderMaskMinWidth,
             "solder paste clearance": brd_drs.m_SolderPasteMargin,
             "solder paste clearance ratio": brd_drs.m_SolderPasteMarginRatio,
