@@ -704,9 +704,6 @@ class Plot(KinJector):
         "generate gerber job file": KinJector.GetSet(
             PPP.GetCreateGerberJobFile, PPP.SetCreateGerberJobFile
         ),
-        "exclude pcb edge": KinJector.GetSet(
-            PPP.GetExcludeEdgeLayer, PPP.SetExcludeEdgeLayer
-        ),
         "format": KinJector.GetSet(PPP.GetFormat, PPP.SetFormat),
         "coordinate format": KinJector.GetSet(
             PPP.GetGerberPrecision, PPP.SetGerberPrecision
@@ -714,13 +711,9 @@ class Plot(KinJector):
         "include netlist attributes": KinJector.GetSet(
             PPP.GetIncludeGerberNetlistInfo, PPP.SetIncludeGerberNetlistInfo
         ),
-        "default line width": KinJector.GetSet(PPP.GetLineWidth, PPP.SetLineWidth),
         "plot border": KinJector.GetSet(PPP.GetPlotFrameRef, PPP.SetPlotFrameRef),
         "plot invisible text": KinJector.GetSet(
             PPP.GetPlotInvisibleText, PPP.SetPlotInvisibleText
-        ),
-        "plot pads on silk": KinJector.GetSet(
-            PPP.GetPlotPadsOnSilkLayer, PPP.SetPlotPadsOnSilkLayer
         ),
         "plot footprint refs": KinJector.GetSet(
             PPP.GetPlotReference, PPP.SetPlotReference
@@ -749,6 +742,17 @@ class Plot(KinJector):
         # layers are handled as a special case.
         "layers": KinJector.GetSet(lambda x: None, lambda x, y: None),
     }
+    # Deprecated keys
+    try:
+        key_method_map["exclude pcb edge"] = KinJector.GetSet(
+            PPP.GetExcludeEdgeLayer, PPP.SetExcludeEdgeLayer
+        )
+        key_method_map["default line width"] = KinJector.GetSet(PPP.GetLineWidth, PPP.SetLineWidth)
+        key_method_map["plot pads on silk"] = KinJector.GetSet(
+            PPP.GetPlotPadsOnSilkLayer, PPP.SetPlotPadsOnSilkLayer
+        )
+    except AttributeError:
+        pass
 
     def inject(self, data_dict, brd):
         """Inject plot settings from data_dict into a KiCad BOARD object."""
