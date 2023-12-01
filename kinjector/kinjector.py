@@ -112,7 +112,7 @@ class Layers(KinJector):
             lset = LSET()
             for l in data_drs["visible"]:
                 lset.AddLayer(l)
-            # Make the specified layers visible while hiiding the rest.
+            # Make the specified layers visible while hiding the rest.
             brd_drs.SetVisibleLayers(lset)
             brd.SetVisibleLayers(lset)
         except KeyError:
