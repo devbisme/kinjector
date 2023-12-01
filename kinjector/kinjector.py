@@ -29,7 +29,7 @@ import sys
 
 sys.path.append('/usr/lib/python3/dist-packages')
 from pcbnew import DIFF_PAIR_DIMENSION, LSET
-from pcbnew import NETCLASSPTR as NCP
+from pcbnew import NETCLASS as NCP
 from pcbnew import PCB_PLOT_PARAMS as PPP
 from pcbnew import (
     VIA_DIMENSION,
@@ -43,7 +43,7 @@ from pcbnew import (
 
 
 def merge_dicts(dct, merge_dct):
-    """ 
+    """
     Dict merge that recurses through both dicts and updates keys.
 
     Args:
@@ -58,7 +58,7 @@ def merge_dicts(dct, merge_dct):
         if (
             k in dct
             and isinstance(dct[k], dict)
-            and isinstance(merge_dct[k], collections.Mapping)
+            and isinstance(merge_dct[k], collections.abc.Mapping)
         ):
             merge_dicts(dct[k], merge_dct[k])
         else:
@@ -112,7 +112,7 @@ class Layers(KinJector):
             lset = LSET()
             for l in data_drs["visible"]:
                 lset.AddLayer(l)
-            # Make the specified layers visible while hiiding the rest.
+            # Make the specified layers visible while hiding the rest.
             brd_drs.SetVisibleLayers(lset)
             brd.SetVisibleLayers(lset)
         except KeyError:
@@ -133,7 +133,7 @@ class Layers(KinJector):
                 "board thickness": brd_drs.GetBoardThickness(),
                 "# copper layers": brd_drs.GetCopperLayerCount(),
                 "enabled": [l for l in brd_drs.GetEnabledLayers().Seq()],
-                "visible": [l for l in brd_drs.GetVisibleLayers().Seq()],
+                "visible": [l for l in brd.GetVisibleLayers().Seq()],
             }
         }
 
@@ -219,13 +219,13 @@ class DesignRules(KinJector):
         brd_drs = brd.GetDesignSettings()
 
         data_drs = {
-            "blind/buried via allowed": brd_drs.m_BlindBuriedViaAllowed,
-            "uvia allowed": brd_drs.m_MicroViasAllowed,
-            "require courtyards": brd_drs.m_RequireCourtyards,
-            "prohibit courtyard overlap": brd_drs.m_ProhibitOverlappingCourtyards,
+            "blind/buried via allowed": getattr(brd_drs, 'm_BlindBuriedViaAllowed', None),
+            "uvia allowed": getattr(brd_drs, 'm_MicroViasAllowed', None),
+            "require courtyards": getattr(brd_drs, 'm_RequireCourtyards', None),
+            "prohibit courtyard overlap": getattr(brd_drs, 'm_ProhibitOverlappingCourtyards', None),
             "min track width": brd_drs.m_TrackMinWidth,
             "min via diameter": brd_drs.m_ViasMinSize,
-            "min via drill size": brd_drs.m_ViasMinDrill,
+            "min via drill size": getattr(brd_drs, 'm_ViasMinDrill', None),
             "min uvia diameter": brd_drs.m_MicroViasMinSize,
             "min uvia drill size": brd_drs.m_MicroViasMinDrill,
             "hole to hole spacing": brd_drs.m_HoleToHoleMin,
@@ -358,7 +358,7 @@ class NetClassAssigns(KinJector):
 
         # Extract the netclass assigned to each net in the board.
         netclass_assignment_dict = {
-            str(net_name): net.GetClassName()
+            str(net_name): net.GetNetClassName()
             for (net_name, net) in brd.GetNetInfo().NetsByName().items()
         }
 
@@ -605,7 +605,7 @@ class SolderMaskPaste(KinJector):
         brd_drs = brd.GetDesignSettings()
 
         data_drs = {
-            "solder mask clearance": brd_drs.m_SolderMaskMargin,
+            "solder mask clearance": getattr(brd_drs, 'm_SolderMaskMargin', None),
             "solder mask min width": brd_drs.m_SolderMaskMinWidth,
             "solder paste clearance": brd_drs.m_SolderPasteMargin,
             "solder paste clearance ratio": brd_drs.m_SolderPasteMarginRatio,
@@ -704,9 +704,6 @@ class Plot(KinJector):
         "generate gerber job file": KinJector.GetSet(
             PPP.GetCreateGerberJobFile, PPP.SetCreateGerberJobFile
         ),
-        "exclude pcb edge": KinJector.GetSet(
-            PPP.GetExcludeEdgeLayer, PPP.SetExcludeEdgeLayer
-        ),
         "format": KinJector.GetSet(PPP.GetFormat, PPP.SetFormat),
         "coordinate format": KinJector.GetSet(
             PPP.GetGerberPrecision, PPP.SetGerberPrecision
@@ -714,13 +711,9 @@ class Plot(KinJector):
         "include netlist attributes": KinJector.GetSet(
             PPP.GetIncludeGerberNetlistInfo, PPP.SetIncludeGerberNetlistInfo
         ),
-        "default line width": KinJector.GetSet(PPP.GetLineWidth, PPP.SetLineWidth),
         "plot border": KinJector.GetSet(PPP.GetPlotFrameRef, PPP.SetPlotFrameRef),
         "plot invisible text": KinJector.GetSet(
             PPP.GetPlotInvisibleText, PPP.SetPlotInvisibleText
-        ),
-        "plot pads on silk": KinJector.GetSet(
-            PPP.GetPlotPadsOnSilkLayer, PPP.SetPlotPadsOnSilkLayer
         ),
         "plot footprint refs": KinJector.GetSet(
             PPP.GetPlotReference, PPP.SetPlotReference
@@ -749,6 +742,17 @@ class Plot(KinJector):
         # layers are handled as a special case.
         "layers": KinJector.GetSet(lambda x: None, lambda x, y: None),
     }
+    # Deprecated keys
+    try:
+        key_method_map["exclude pcb edge"] = KinJector.GetSet(
+            PPP.GetExcludeEdgeLayer, PPP.SetExcludeEdgeLayer
+        )
+        key_method_map["default line width"] = KinJector.GetSet(PPP.GetLineWidth, PPP.SetLineWidth)
+        key_method_map["plot pads on silk"] = KinJector.GetSet(
+            PPP.GetPlotPadsOnSilkLayer, PPP.SetPlotPadsOnSilkLayer
+        )
+    except AttributeError:
+        pass
 
     def inject(self, data_dict, brd):
         """Inject plot settings from data_dict into a KiCad BOARD object."""
@@ -877,7 +881,7 @@ class ModulesByRef(KinJector):
         data_modules = data_dict.get(self.dict_key, {})
 
         # Get all the parts in the board indexed by references.
-        brd_modules = {self.get_id(m): m for m in brd.GetModules()}
+        brd_modules = {self.get_id(m): m for m in brd.GetFootprints()}
 
         # Assign the data in the data_dict to the parts on the board.
         for data_module_ref, data_module_data in data_modules.items():
@@ -895,7 +899,7 @@ class ModulesByRef(KinJector):
         """Return part data from parts as a dict in a KiCad BOARD object."""
 
         # Get all the parts in the board indexed by references.
-        brd_parts = {self.get_id(m): m for m in brd.GetModules()}
+        brd_parts = {self.get_id(m): m for m in brd.GetFootprints()}
 
         # Get data from each part and store it in dict using part ref as key.
         part_data_dict = {
