@@ -29,7 +29,7 @@ import sys
 
 sys.path.append('/usr/lib/python3/dist-packages')
 from pcbnew import DIFF_PAIR_DIMENSION, LSET
-from pcbnew import NETCLASSPTR as NCP
+from pcbnew import NETCLASS as NCP
 from pcbnew import PCB_PLOT_PARAMS as PPP
 from pcbnew import (
     VIA_DIMENSION,
