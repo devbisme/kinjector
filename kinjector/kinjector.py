@@ -358,7 +358,7 @@ class NetClassAssigns(KinJector):
 
         # Extract the netclass assigned to each net in the board.
         netclass_assignment_dict = {
-            str(net_name): net.GetClassName()
+            str(net_name): net.GetNetClassName()
             for (net_name, net) in brd.GetNetInfo().NetsByName().items()
         }
 
