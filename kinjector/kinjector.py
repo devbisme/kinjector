@@ -58,7 +58,7 @@ def merge_dicts(dct, merge_dct):
         if (
             k in dct
             and isinstance(dct[k], dict)
-            and isinstance(merge_dct[k], collections.Mapping)
+            and isinstance(merge_dct[k], collections.abc.Mapping)
         ):
             merge_dicts(dct[k], merge_dct[k])
         else:

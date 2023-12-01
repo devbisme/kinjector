@@ -120,7 +120,7 @@ def main():
                     # Do this if it's a YAML file.
                     fp.seek(0)
                     file_dict = yaml.load(fp, Loader=yaml.Loader)
-                    if not isinstance(file_dict, collections.Mapping):
+                    if not isinstance(file_dict, collections.abc.Mapping):
                         raise Exception
                 except Exception:
                     try:
