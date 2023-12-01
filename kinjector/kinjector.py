@@ -133,7 +133,7 @@ class Layers(KinJector):
                 "board thickness": brd_drs.GetBoardThickness(),
                 "# copper layers": brd_drs.GetCopperLayerCount(),
                 "enabled": [l for l in brd_drs.GetEnabledLayers().Seq()],
-                "visible": [l for l in brd_drs.GetVisibleLayers().Seq()],
+                "visible": [l for l in brd.GetVisibleLayers().Seq()],
             }
         }
 
