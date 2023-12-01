@@ -204,7 +204,8 @@ class DesignRules(KinJector):
             pass
 
         try:
-            brd_drs.SetMinHoleSeparation(data_drs["hole to hole spacing"])
+            # brd_drs.SetMinHoleSeparation(data_drs["hole to hole spacing"])
+            pass
         except KeyError:
             pass
 
@@ -262,7 +263,8 @@ class NetClassDefs(KinJector):
         # Get all the net classes in the board except the Default class.
         # Using brd.GetAllNetClasss() injects a duplicate of the Default into
         # the set of net classes.
-        brd_netclasses = brd.GetNetClasses().NetClasses()
+        # brd_netclasses = brd.GetNetClasses().NetClasses()
+        brd_netclasses = brd.GetAllNetClasses()
 
         # Update existing net classes in the board with new values from data
         # or create new net classes.
@@ -324,8 +326,10 @@ class NetClassAssigns(KinJector):
         brd_nets = brd.GetNetInfo().NetsByName()
 
         # Get all the net classes in the board.
-        brd_netclasses = brd.GetNetClasses().NetClasses()
-        brd_dflt = brd.GetNetClasses().GetDefault()
+        # brd_netclasses = brd.GetNetClasses().NetClasses()
+        brd_netclasses = brd.GetAllNetClasses()
+        # brd_dflt = brd.GetNetClasses().GetDefault()
+        brd_dflt = brd_netclasses["Default"]
 
         # Assign the nets in data dict to the appropriate netclasses in the board.
         for data_net_name, data_net_class_name in data_netclass_assigns.items():
