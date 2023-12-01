@@ -1,6 +1,9 @@
+import sys
 import json
-
 import yaml
+
+sys.path.append("/usr/lib/python3/dist-packages")
+import pcbnew
 
 
 def setup():

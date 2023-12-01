@@ -2,7 +2,7 @@
 
 import json
 
-import pcbnew
+# import pcbnew
 import pytest
 import yaml
 
